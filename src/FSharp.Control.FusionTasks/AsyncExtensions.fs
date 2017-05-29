@@ -96,7 +96,7 @@ module AsyncExtensions =
     member task.AsyncConfigure(continueOnCapturedContext: bool) =
       ConfiguredTaskAsyncAwaitable<'T>(task.ConfigureAwait(continueOnCapturedContext))
 
-#if NET45 || PCL7 || PCL78 || PCL259
+#if NET45 || PCL7 || PCL78 || PCL259 || NETSTANDARD1_6
   type ValueTask<'T> with
 
     /// <summary>
@@ -143,7 +143,7 @@ module AsyncExtensions =
     member cta.AsAsync() =
       Infrastructures.asAsyncCTAT(cta)
 
-#if NET45 || PCL7 || PCL78 || PCL259
+#if NET45 || PCL7 || PCL78 || PCL259 || NETSTANDARD1_6
   type ConfiguredValueTaskAsyncAwaitable<'T> with
 
     /// <summary>
@@ -203,7 +203,7 @@ module AsyncExtensions =
     member __.Source(cta: ConfiguredTaskAsyncAwaitable<'T>) =
       Infrastructures.asAsyncCTAT(cta)
 
-#if NET45 || PCL7 || PCL78 || PCL259
+#if NET45 || PCL7 || PCL78 || PCL259 || NETSTANDARD1_6
     /// <summary>
     /// Seamless conversion from .NET Task to F# Async in Async workflow.
     /// </summary>

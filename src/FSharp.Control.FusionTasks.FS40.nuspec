@@ -40,21 +40,21 @@
         <dependency id="Microsoft.Bcl.Async" version="1.0.168" />
         <dependency id="FSharp.Core" version="4.0.0.1" />
       </group>
-      <group targetFramework="portable-net45+MonoAndroid10+xamarinios10+MonoTouch10">
+      <group targetFramework="portable-net45+netcore45+MonoAndroid10+xamarinios10+MonoTouch10">
         <dependency id="Microsoft.Bcl" version="1.1.10" />
         <dependency id="Microsoft.Bcl.Build" version="1.0.21" />
         <dependency id="Microsoft.Bcl.Async" version="1.0.168" />
         <dependency id="FSharp.Core" version="4.0.0.1" />
         <dependency id="System.Threading.Tasks.Extensions" version="4.3.0" />
       </group>
-      <group targetFramework="portable-net45+wp80+MonoAndroid10+xamarinios10+MonoTouch10">
+      <group targetFramework="portable-net45+netcore45+wp80+MonoAndroid10+xamarinios10+MonoTouch10">
         <dependency id="Microsoft.Bcl" version="1.1.10" />
         <dependency id="Microsoft.Bcl.Build" version="1.0.21" />
         <dependency id="Microsoft.Bcl.Async" version="1.0.168" />
         <dependency id="FSharp.Core" version="4.0.0.1" />
         <dependency id="System.Threading.Tasks.Extensions" version="4.3.0" />
       </group>
-      <group targetFramework="portable-net45+win+wpa81+wp80+MonoAndroid10+xamarinios10+MonoTouch10">
+      <group targetFramework="portable-net45+netcore45+win+wpa81+wp80+MonoAndroid10+xamarinios10+MonoTouch10">
         <dependency id="Microsoft.Bcl" version="1.1.10" />
         <dependency id="Microsoft.Bcl.Build" version="1.0.21" />
         <dependency id="Microsoft.Bcl.Async" version="1.0.168" />
@@ -80,14 +80,14 @@
     <file src="FSharp.Control.FusionTasks.FS4PCL47/bin/$Configuration$/FSharp.Control.FusionTasks.dll" target="lib/portable-net40+sl50+win+MonoAndroid10+xamarinios10+MonoTouch10" />
     <file src="FSharp.Control.FusionTasks.FS4PCL47/bin/$Configuration$/FSharp.Control.FusionTasks.pdb" target="lib/portable-net40+sl50+win+MonoAndroid10+xamarinios10+MonoTouch10" />
     <file src="FSharp.Control.FusionTasks.FS4PCL47/bin/$Configuration$/FSharp.Control.FusionTasks.xml" target="lib/portable-net40+sl50+win+MonoAndroid10+xamarinios10+MonoTouch10" />
-    <file src="FSharp.Control.FusionTasks.FS4PCL7/bin/$Configuration$/FSharp.Control.FusionTasks.dll" target="lib/portable-net45+dnxcore50+MonoAndroid10+xamarinios10+MonoTouch10" />
-    <file src="FSharp.Control.FusionTasks.FS4PCL7/bin/$Configuration$/FSharp.Control.FusionTasks.pdb" target="lib/portable-net45+dnxcore50+MonoAndroid10+xamarinios10+MonoTouch10" />
-    <file src="FSharp.Control.FusionTasks.FS4PCL7/bin/$Configuration$/FSharp.Control.FusionTasks.xml" target="lib/portable-net45+dnxcore50+MonoAndroid10+xamarinios10+MonoTouch10" />
-    <file src="FSharp.Control.FusionTasks.FS4PCL78/bin/$Configuration$/FSharp.Control.FusionTasks.dll" target="lib/portable-net45+dnxcore50+wp80+MonoAndroid10+xamarinios10+MonoTouch10" />
-    <file src="FSharp.Control.FusionTasks.FS4PCL78/bin/$Configuration$/FSharp.Control.FusionTasks.pdb" target="lib/portable-net45+dnxcore50+wp80+MonoAndroid10+xamarinios10+MonoTouch10" />
-    <file src="FSharp.Control.FusionTasks.FS4PCL78/bin/$Configuration$/FSharp.Control.FusionTasks.xml" target="lib/portable-net45+dnxcore50+wp80+MonoAndroid10+xamarinios10+MonoTouch10" />
-    <file src="FSharp.Control.FusionTasks.FS4PCL259/bin/$Configuration$/FSharp.Control.FusionTasks.dll" target="lib/portable-net45+dnxcore50+win+wpa81+wp80+MonoAndroid10+xamarinios10+MonoTouch10" />
-    <file src="FSharp.Control.FusionTasks.FS4PCL259/bin/$Configuration$/FSharp.Control.FusionTasks.pdb" target="lib/portable-net45+dnxcore50+win+wpa81+wp80+MonoAndroid10+xamarinios10+MonoTouch10" />
-    <file src="FSharp.Control.FusionTasks.FS4PCL259/bin/$Configuration$/FSharp.Control.FusionTasks.xml" target="lib/portable-net45+dnxcore50+win+wpa81+wp80+MonoAndroid10+xamarinios10+MonoTouch10" />
+    <file src="FSharp.Control.FusionTasks.FS4PCL7/bin/$Configuration$/FSharp.Control.FusionTasks.dll" target="lib/portable-net45+netcore45+MonoAndroid10+xamarinios10+MonoTouch10" />
+    <file src="FSharp.Control.FusionTasks.FS4PCL7/bin/$Configuration$/FSharp.Control.FusionTasks.pdb" target="lib/portable-net45+netcore45+MonoAndroid10+xamarinios10+MonoTouch10" />
+    <file src="FSharp.Control.FusionTasks.FS4PCL7/bin/$Configuration$/FSharp.Control.FusionTasks.xml" target="lib/portable-net45+netcore45+MonoAndroid10+xamarinios10+MonoTouch10" />
+    <file src="FSharp.Control.FusionTasks.FS4PCL78/bin/$Configuration$/FSharp.Control.FusionTasks.dll" target="lib/portable-net45+netcore45+wp80+MonoAndroid10+xamarinios10+MonoTouch10" />
+    <file src="FSharp.Control.FusionTasks.FS4PCL78/bin/$Configuration$/FSharp.Control.FusionTasks.pdb" target="lib/portable-net45+netcore45+wp80+MonoAndroid10+xamarinios10+MonoTouch10" />
+    <file src="FSharp.Control.FusionTasks.FS4PCL78/bin/$Configuration$/FSharp.Control.FusionTasks.xml" target="lib/portable-net45+netcore45+wp80+MonoAndroid10+xamarinios10+MonoTouch10" />
+    <file src="FSharp.Control.FusionTasks.FS4PCL259/bin/$Configuration$/FSharp.Control.FusionTasks.dll" target="lib/portable-net45+netcore45+win+wpa81+wp80+MonoAndroid10+xamarinios10+MonoTouch10" />
+    <file src="FSharp.Control.FusionTasks.FS4PCL259/bin/$Configuration$/FSharp.Control.FusionTasks.pdb" target="lib/portable-net45+netcore45+win+wpa81+wp80+MonoAndroid10+xamarinios10+MonoTouch10" />
+    <file src="FSharp.Control.FusionTasks.FS4PCL259/bin/$Configuration$/FSharp.Control.FusionTasks.xml" target="lib/portable-net45+netcore45+win+wpa81+wp80+MonoAndroid10+xamarinios10+MonoTouch10" />
   </files>
 </package>

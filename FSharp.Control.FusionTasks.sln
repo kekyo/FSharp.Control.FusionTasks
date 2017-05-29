@@ -81,6 +81,10 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharp.Control.FusionTasks.
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharp.Control.FusionTasks.FS4NET4", "src\FSharp.Control.FusionTasks.FS4NET4\FSharp.Control.FusionTasks.FS4NET4.fsproj", "{181652B8-4155-4A85-997C-93C403CFC966}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharp.Control.FusionTasks.FS41NET45", "src\FSharp.Control.FusionTasks.FS41NET45\FSharp.Control.FusionTasks.FS41NET45.fsproj", "{59B9EE70-C9EE-4163-B2C9-38B73B5D09AC}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharp.Control.FusionTasks.FS41NETStandard16", "src\FSharp.Control.FusionTasks.FS41NETStandard16\FSharp.Control.FusionTasks.FS41NETStandard16.fsproj", "{977F644E-ABF5-4899-845E-0253E6D40AA3}"
+EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharp.Control.FusionTasks.Tests.FS4NET45", "tests\FSharp.Control.FusionTasks.Tests.FS4NET45\FSharp.Control.FusionTasks.Tests.FS4NET45.fsproj", "{F8E91A96-CA6A-44DA-B1A8-04B63E4D07D9}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FSharp.Control.FusionTasks.Tests.CSharp.FS4NET45", "tests\FSharp.Control.FusionTasks.Tests.CSharp.FS4NET45\FSharp.Control.FusionTasks.Tests.CSharp.FS4NET45.csproj", "{79758BEF-16BA-4EDE-A173-3B9D1AE94325}"
@@ -96,13 +100,23 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{9C54998D-636
 		src\FSharp.Control.FusionTasks.FS20.nuspec = src\FSharp.Control.FusionTasks.FS20.nuspec
 		src\FSharp.Control.FusionTasks.FS30.nuspec = src\FSharp.Control.FusionTasks.FS30.nuspec
 		src\FSharp.Control.FusionTasks.FS31.nuspec = src\FSharp.Control.FusionTasks.FS31.nuspec
-		src\FSharp.Control.FusionTasks.FS40.netcore.nuspec = src\FSharp.Control.FusionTasks.FS40.netcore.nuspec
 		src\FSharp.Control.FusionTasks.FS40.nuspec = src\FSharp.Control.FusionTasks.FS40.nuspec
+		src\FSharp.Control.FusionTasks.FS41.nuspec = src\FSharp.Control.FusionTasks.FS41.nuspec
 	EndProjectSection
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharp.Control.FusionTasks.Tests.FS4NET4", "tests\FSharp.Control.FusionTasks.Tests.FS4NET4\FSharp.Control.FusionTasks.Tests.FS4NET4.fsproj", "{31AFC411-6112-41CA-A674-FCD11172483C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FSharp.Control.FusionTasks.Tests.CSharp.FS4NET4", "tests\FSharp.Control.FusionTasks.Tests.CSharp.FS4NET4\FSharp.Control.FusionTasks.Tests.CSharp.FS4NET4.csproj", "{E1F46992-920F-4B67-93F5-1789C9E4B3C0}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharp.Control.FusionTasks.FS41PCL259", "src\FSharp.Control.FusionTasks.FS41PCL259\FSharp.Control.FusionTasks.FS41PCL259.fsproj", "{E824A549-127C-4915-8CF0-B5EAECBF0900}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FSharp.Control.FusionTasks.Tests.CSharp.FS41NET45", "tests\FSharp.Control.FusionTasks.Tests.CSharp.FS41NET45\FSharp.Control.FusionTasks.Tests.CSharp.FS41NET45.csproj", "{5EC4C92E-F4DD-404A-ABC4-EC00B32B7EF1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FSharp.Control.FusionTasks.Tests.CSharp.FS41NETStandard16", "tests\FSharp.Control.FusionTasks.Tests.CSharp.FS41NETStandard16\FSharp.Control.FusionTasks.Tests.CSharp.FS41NETStandard16.csproj", "{B18427F2-46C6-499F-84C7-04D430ADA937}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharp.Control.FusionTasks.Tests.FS41NETStandard16", "tests\FSharp.Control.FusionTasks.Tests.FS41NETStandard16\FSharp.Control.FusionTasks.Tests.FS41NETStandard16.fsproj", "{9FBD76D9-1AF5-424F-9910-7208441266C5}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharp.Control.FusionTasks.Tests.FS41NET45", "tests\FSharp.Control.FusionTasks.Tests.FS41NET45\FSharp.Control.FusionTasks.Tests.FS41NET45.fsproj", "{47604962-A411-4EAF-84E2-59E10950B0A1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -178,6 +192,14 @@ Global
 		{181652B8-4155-4A85-997C-93C403CFC966}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{181652B8-4155-4A85-997C-93C403CFC966}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{181652B8-4155-4A85-997C-93C403CFC966}.Release|Any CPU.Build.0 = Release|Any CPU
+		{59B9EE70-C9EE-4163-B2C9-38B73B5D09AC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{59B9EE70-C9EE-4163-B2C9-38B73B5D09AC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{59B9EE70-C9EE-4163-B2C9-38B73B5D09AC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{59B9EE70-C9EE-4163-B2C9-38B73B5D09AC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{977F644E-ABF5-4899-845E-0253E6D40AA3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{977F644E-ABF5-4899-845E-0253E6D40AA3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{977F644E-ABF5-4899-845E-0253E6D40AA3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{977F644E-ABF5-4899-845E-0253E6D40AA3}.Release|Any CPU.Build.0 = Release|Any CPU
 		{F8E91A96-CA6A-44DA-B1A8-04B63E4D07D9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{F8E91A96-CA6A-44DA-B1A8-04B63E4D07D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F8E91A96-CA6A-44DA-B1A8-04B63E4D07D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -202,6 +224,26 @@ Global
 		{E1F46992-920F-4B67-93F5-1789C9E4B3C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E1F46992-920F-4B67-93F5-1789C9E4B3C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E1F46992-920F-4B67-93F5-1789C9E4B3C0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E824A549-127C-4915-8CF0-B5EAECBF0900}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E824A549-127C-4915-8CF0-B5EAECBF0900}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E824A549-127C-4915-8CF0-B5EAECBF0900}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E824A549-127C-4915-8CF0-B5EAECBF0900}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5EC4C92E-F4DD-404A-ABC4-EC00B32B7EF1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5EC4C92E-F4DD-404A-ABC4-EC00B32B7EF1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5EC4C92E-F4DD-404A-ABC4-EC00B32B7EF1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5EC4C92E-F4DD-404A-ABC4-EC00B32B7EF1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B18427F2-46C6-499F-84C7-04D430ADA937}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B18427F2-46C6-499F-84C7-04D430ADA937}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B18427F2-46C6-499F-84C7-04D430ADA937}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B18427F2-46C6-499F-84C7-04D430ADA937}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9FBD76D9-1AF5-424F-9910-7208441266C5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9FBD76D9-1AF5-424F-9910-7208441266C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9FBD76D9-1AF5-424F-9910-7208441266C5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9FBD76D9-1AF5-424F-9910-7208441266C5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{47604962-A411-4EAF-84E2-59E10950B0A1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{47604962-A411-4EAF-84E2-59E10950B0A1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{47604962-A411-4EAF-84E2-59E10950B0A1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{47604962-A411-4EAF-84E2-59E10950B0A1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -228,11 +270,18 @@ Global
 		{8F2155F2-26F5-4D6A-AB40-7C1B9CC0A584} = {9C54998D-636F-437C-AC90-69430C7FB29B}
 		{F8BBE92C-DA06-4648-BF42-D64436C6A9E6} = {9C54998D-636F-437C-AC90-69430C7FB29B}
 		{181652B8-4155-4A85-997C-93C403CFC966} = {9C54998D-636F-437C-AC90-69430C7FB29B}
+		{59B9EE70-C9EE-4163-B2C9-38B73B5D09AC} = {9C54998D-636F-437C-AC90-69430C7FB29B}
+		{977F644E-ABF5-4899-845E-0253E6D40AA3} = {9C54998D-636F-437C-AC90-69430C7FB29B}
 		{F8E91A96-CA6A-44DA-B1A8-04B63E4D07D9} = {04DC85DD-C2D6-4F22-B28C-3BBB2508EF97}
 		{79758BEF-16BA-4EDE-A173-3B9D1AE94325} = {04DC85DD-C2D6-4F22-B28C-3BBB2508EF97}
 		{C3406FB4-D9D8-4859-AF6C-FA3BB786CCF9} = {04DC85DD-C2D6-4F22-B28C-3BBB2508EF97}
 		{41806364-953E-4BDC-ACAE-C719691BFC93} = {04DC85DD-C2D6-4F22-B28C-3BBB2508EF97}
 		{31AFC411-6112-41CA-A674-FCD11172483C} = {04DC85DD-C2D6-4F22-B28C-3BBB2508EF97}
 		{E1F46992-920F-4B67-93F5-1789C9E4B3C0} = {04DC85DD-C2D6-4F22-B28C-3BBB2508EF97}
+		{E824A549-127C-4915-8CF0-B5EAECBF0900} = {9C54998D-636F-437C-AC90-69430C7FB29B}
+		{5EC4C92E-F4DD-404A-ABC4-EC00B32B7EF1} = {04DC85DD-C2D6-4F22-B28C-3BBB2508EF97}
+		{B18427F2-46C6-499F-84C7-04D430ADA937} = {04DC85DD-C2D6-4F22-B28C-3BBB2508EF97}
+		{9FBD76D9-1AF5-424F-9910-7208441266C5} = {04DC85DD-C2D6-4F22-B28C-3BBB2508EF97}
+		{47604962-A411-4EAF-84E2-59E10950B0A1} = {04DC85DD-C2D6-4F22-B28C-3BBB2508EF97}
 	EndGlobalSection
 EndGlobal

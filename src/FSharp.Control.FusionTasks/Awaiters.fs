@@ -114,7 +114,7 @@ type ConfiguredTaskAsyncAwaitable<'T> internal (cta: ConfiguredTaskAwaitable<'T>
 
     member __.GetAwaiter() = ConfiguredTaskAsyncAwaiter<'T>(cta.GetAwaiter())
 
-#if NET45 || PCL7 || PCL78 || PCL259
+#if NET45 || PCL7 || PCL78 || PCL259 || NETSTANDARD1_6
 ///////////////////////////////////////////////////////////////////////////////////
 // ConfiguredValueTaskAsyncAwaiter.
 

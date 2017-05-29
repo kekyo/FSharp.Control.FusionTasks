@@ -94,7 +94,7 @@
   <Import Project="..\..\packages\CenterCLR.RelaxVersioner.0.8.11\build\CenterCLR.RelaxVersioner.targets" Condition="Exists('..\..\packages\CenterCLR.RelaxVersioner.0.8.11\build\CenterCLR.RelaxVersioner.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
-      <ErrorText>このプロジェクトは、このコンピューター上にない NuGet パッケージを参照しています。それらのパッケージをダウンロードするには、[NuGet パッケージの復元] を使用します。詳細については、http://go.microsoft.com/fwlink/?LinkID=322105 を参照してください。見つからないファイルは {0} です。</ErrorText>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
     <Error Condition="!Exists('..\..\packages\CenterCLR.RelaxVersioner.0.8.11\build\CenterCLR.RelaxVersioner.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\CenterCLR.RelaxVersioner.0.8.11\build\CenterCLR.RelaxVersioner.targets'))" />
   </Target>
