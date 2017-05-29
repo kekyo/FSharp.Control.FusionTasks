@@ -57,7 +57,7 @@ module internal Infrastructures =
       safeToken ct)
     tcs.Task
 
-#if NET45 || PCL7 || PCL78 || PCL259
+#if NET45 || PCL7 || PCL78 || PCL259 || NETSTANDARD1_6
   let asValueTask(async: Async<'T>, ct: CancellationToken option) =
     let tcs = TaskCompletionSource<'T>()
     Async.StartWithContinuations(
@@ -93,7 +93,7 @@ module internal Infrastructures =
           safeToken ct)
         |> ignore)
 
-#if NET45 || PCL7 || PCL78 || PCL259
+#if NET45 || PCL7 || PCL78 || PCL259 || NETSTANDARD1_6
   let asAsyncVT(task: ValueTask<'T>, ct: CancellationToken option) =
     Async.FromContinuations(
       fun (completed, caught, canceled) ->
@@ -130,7 +130,7 @@ module internal Infrastructures =
             with exn -> caught(exn)))
         |> ignore)
 
-#if NET45 || PCL7 || PCL78 || PCL259
+#if NET45 || PCL7 || PCL78 || PCL259 || NETSTANDARD1_6
   let asAsyncCVTAT(cta: ConfiguredValueTaskAsyncAwaitable<'T>) =
     Async.FromContinuations(
       fun (completed, caught, canceled) ->

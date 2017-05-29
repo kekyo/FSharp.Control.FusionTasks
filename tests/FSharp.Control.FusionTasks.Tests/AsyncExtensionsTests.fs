@@ -17,6 +17,10 @@
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
+#if FS41NET45
+// Basic validations.
+namespace FSharp.Control.FusionTasks.Tests.FS41NET45
+#endif
 #if FS4NET45
 // Basic validations.
 namespace FSharp.Control.FusionTasks.Tests.FS4NET45
@@ -24,6 +28,10 @@ namespace FSharp.Control.FusionTasks.Tests.FS4NET45
 #if FS4NET4
 // Validate for internal Task implementation differences between NET4 and NET45.
 namespace FSharp.Control.FusionTasks.Tests.FS4NET4
+#endif
+#if FS41NETStandard16
+// Validate for .NET Standard 1.6 (F# 4.1)
+namespace FSharp.Control.FusionTasks.Tests.FS41NETStandard16
 #endif
 #if FS4PCL259
 // Validate for PCLs.
@@ -100,7 +108,7 @@ module AsyncExtensions =
       }
     computation |> Async.RunSynchronously  // FSUnit not supported Async/Task based tests, so run synchronously here. 
 
-#if FS4NET45 || FS4PCL259
+#if FS41NET45 || FS4NET45 || FS4PCL259 || FS41NETStandard16
   [<Test>]
   let AsyncBuilderAsAsyncCVTATTest() =
     let r = Random()

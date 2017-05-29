@@ -8,7 +8,7 @@
 | NuGet Package (F# 3.0) | [![NuGet FusionTasks (F# 3.0)](https://img.shields.io/nuget/v/FSharp.Control.FusionTasks.FS30.svg?style=flat)](https://www.nuget.org/packages/FSharp.Control.FusionTasks.FS30) |
 | NuGet Package (F# 3.1) | [![NuGet FusionTasks (F# 3.1)](https://img.shields.io/nuget/v/FSharp.Control.FusionTasks.FS31.svg?style=flat)](https://www.nuget.org/packages/FSharp.Control.FusionTasks.FS31) |
 | NuGet Package (F# 4.0) | [![NuGet FusionTasks (F# 4.0)](https://img.shields.io/nuget/v/FSharp.Control.FusionTasks.FS40.svg?style=flat)](https://www.nuget.org/packages/FSharp.Control.FusionTasks.FS40) |
-| NuGet Package (F# 4.0/.NET Core) | [![NuGet FusionTasks (F# 4.0/.NET Core)](https://img.shields.io/nuget/v/FSharp.Control.FusionTasks.FS40.netcore.svg?style=flat)](https://www.nuget.org/packages/FSharp.Control.FusionTasks.FS40.netcore) |
+| NuGet Package (F# 4.1) | [![NuGet FusionTasks (F# 4.1)](https://img.shields.io/nuget/v/FSharp.Control.FusionTasks.FS41.svg?style=flat)](https://www.nuget.org/packages/FSharp.Control.FusionTasks.FS41) |
 | Continuous integration | [![AppVeyor FusionTasks](https://img.shields.io/appveyor/ci/kekyo/fsharp-control-fusiontasks.svg?style=flat)](https://ci.appveyor.com/project/kekyo/fsharp-control-fusiontasks) |
 | Gitter | [![Gitter FusionTasks](https://badges.gitter.im/kekyo/FSharp.Control.FusionTasks.svg)](https://gitter.im/kekyo/FSharp.Control.FusionTasks?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) |
 
@@ -56,15 +56,13 @@ public async Task AsyncTest(FSharpAsync<int> asyncIntComp)
 
 ## Benefits
 * Easy interoperability, combination and relation standard .NET OSS packages using Task/ValueTask and F#'s Async.
-* F# 2.0, 3.0, 3.1 and 4.0 with .NET 4.0/4.5 include PCL Profile 7/47/78/259 and .NET Core 1.0 (.NET Standard 1.6 or higher).
+* F# 2.0, 3.0, 3.1, 4.0 and 4.1 with .NET Framework 4.0 (or higher) include PCL Profile 7/47/78/259 and .NET Standard 1.6 (or higher).
 * Ready to LINQPad 5.
 
 ## Environments
-* .NET Framework 4.0/4.5
+* .NET Framework 4.0 or higher
 * .NET Framework Portable class library (Profile 7/47/78/259)
-* F# 2.0, 3.0, 3.1, 4.0 (NuGet package separated, choose one)
-* .NET Core 1.0 (F# 4.0 only, .NET Standard 1.6 or higher)
-  * Currently, separated NuGet package (FS40.netcore) and must require -Pre option for use, because .NET Core version FSharp.Core.dll depends on System.Reflection.Metadata BETA package.
+* F# 2.0, 3.0, 3.1, 4.0, 4.1 (NuGet package separated, choose one)
 
 ## How to use
 * Search NuGet package and install "FSharp.Control.FusionTasks.FS??". You must select F# version.
@@ -223,10 +221,12 @@ asyncSequenceData.AsTask().Dump()
  Improvements more easier/effective interfaces.
 
 ## License
-* Copyright (c) 2016 Kouji Matsui
+* Copyright (c) 2016-2017 Kouji Matsui
 * Under Apache v2 http://www.apache.org/licenses/LICENSE-2.0
 
 ## History
+* 1.1.0:
+  * Supported F# 4.1 and .NET Standard 1.6. (Unfortunately deprecated FS40.netcore (netstandard1.4) package, try to migrate to F# 4.1 :)
 * 1.0.20:
   * Support ValueTask&lt;T&gt; (Exclude net40 and Profile 47 platform, added dependency for System.Threading.Tasks.Extensions).
   * Update version for .NET Core F# (1.0.0-alpha-161205).

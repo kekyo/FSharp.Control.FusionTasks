@@ -95,7 +95,7 @@ type TaskExtensions =
   static member AsAsyncConfigured (task: Task<'T>, continueOnCapturedContext: bool) =
     Infrastructures.asAsyncCTAT (ConfiguredTaskAsyncAwaitable<'T>(task.ConfigureAwait(continueOnCapturedContext)))
 
-#if NET45 || PCL7 || PCL78 || PCL259
+#if NET45 || PCL7 || PCL78 || PCL259 || NETSTANDARD1_6
 /// <summary>
 /// Seamless conversion extensions in standard .NET ValueTask based infrastructure.
 /// </summary>
@@ -195,7 +195,7 @@ type AsyncExtensions =
   static member AsTask (async: Async<'T>, token: CancellationToken) =
     Infrastructures.asTask (async, Some token)
 
-#if NET45 || PCL7 || PCL78 || PCL259
+#if NET45 || PCL7 || PCL78 || PCL259 || NETSTANDARD1_6
   ///////////////////////////////////////////////////////////////////////////////////
   // .NET (C#) side Async --> ValueTask conversion extensions.
 
