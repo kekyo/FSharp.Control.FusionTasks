@@ -208,6 +208,15 @@ module AsyncExtensions =
     /// Seamless conversion from .NET Task to F# Async in Async workflow.
     /// </summary>
     /// <typeparam name="'T">Computation result type</typeparam> 
+    /// <param name="task">.NET ValueTask (expression result)</param>
+    /// <returns>F# Async</returns>
+    member __.Source(task: ValueTask<'T>) =
+       Infrastructures.asAsyncVT(task, None)
+ 
+    /// <summary>
+    /// Seamless conversion from .NET Task to F# Async in Async workflow.
+    /// </summary>
+    /// <typeparam name="'T">Computation result type</typeparam> 
     /// <param name="cta">.NET ConfiguredValueTaskAwaitable (expr.ConfigureAwait(...))</param>
     /// <returns>F# Async</returns>
     member __.Source(cta: ConfiguredValueTaskAsyncAwaitable<'T>) =
