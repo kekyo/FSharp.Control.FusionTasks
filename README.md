@@ -225,6 +225,8 @@ asyncSequenceData.AsTask().Dump()
 * Under Apache v2 http://www.apache.org/licenses/LICENSE-2.0
 
 ## History
+* 1.1.1:
+  * Add ValueTask<'T> bind source overload.
 * 1.1.0:
   * Supported F# 4.1 and .NET Standard 1.6. (Unfortunately deprecated FS40.netcore (netstandard1.4) package, try to migrate to F# 4.1 :)
 * 1.0.20:
