@@ -1,3 +1,15 @@
 version: 1.0.{build}
+image: Visual Studio 2017
 build:
   verbosity: minimal
+build_script:
+  - cmd: dotnet restore
+  - cmd: dotnet publish
+test_script:
+  - cmd: dotnet restore
+  - cmd: cd FSharp.Control.FusionTasks.Tests.FS
+  - cmd: dotnet test
+  - cmd: cd ..
+  - cmd: cd FSharp.Control.FusionTasks.Tests.CS
+  - cmd: dotnet test
+  - cmd: cd ..
