@@ -4,7 +4,7 @@
 ## Status
 | | Current |
 |:---|:--:|
-| NuGet Package (F# 4.5) | [![NuGet FusionTasks (F# 4.5)](https://img.shields.io/nuget/v/FSharp.Control.FusionTasks.FS45.svg?style=flat)](https://www.nuget.org/packages/FSharp.Control.FusionTasks.FS45) |
+| NuGet Package (F# 4.5) | [![NuGet FusionTasks (F# 4.5)](https://img.shields.io/nuget/v/FSharp.Control.FusionTasks.svg?style=flat)](https://www.nuget.org/packages/FSharp.Control.FusionTasks) |
 | (Older below, archived) | ---
 | NuGet Package (F# 4.1) | [![NuGet FusionTasks (F# 4.1)](https://img.shields.io/nuget/v/FSharp.Control.FusionTasks.FS41.svg?style=flat)](https://www.nuget.org/packages/FSharp.Control.FusionTasks.FS41) |
 | NuGet Package (F# 4.0) | [![NuGet FusionTasks (F# 4.0)](https://img.shields.io/nuget/v/FSharp.Control.FusionTasks.FS40.svg?style=flat)](https://www.nuget.org/packages/FSharp.Control.FusionTasks.FS40) |
@@ -68,7 +68,7 @@ public async Task AsyncTest(FSharpAsync<int> asyncIntComp)
 * F# 4.5 or higher
 
 ## How to use
-* Search NuGet package and install "FSharp.Control.FusionTasks.FS45".
+* Search NuGet package and install "FSharp.Control.FusionTasks".
 * F# use, autoopen'd namespace "FSharp.Control". "System.Threading.Tasks" is optional.
 * C# use, using namespace "System.Threading.Tasks". "Microsoft.FSharp.Control" is optional.
 
@@ -230,7 +230,7 @@ asyncSequenceData.AsTask().Dump()
 ## History
 * 2.0.0:
   * Supported F# 4.5, .NET Standard 2.0 and .NET Core 2.0.
-  * Sorry, obsoleted all PCL's libraries. Now FusionTasks supports .NET Framework 4.5, .NET Core 2.0 and .NET Standard 1.6/2.0.
+  * Sorry, archived all PCL's libraries. Now FusionTasks supports only .NET Framework 4.5, .NET Core 2.0 and .NET Standard 1.6/2.0.
   * Solution structure refablished. Changed to .NET Core modern-style.
 * 1.1.1:
   * Add ValueTask<'T> bind source overload.
