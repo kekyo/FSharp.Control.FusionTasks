@@ -4,11 +4,13 @@
 ## Status
 | | Current |
 |:---|:--:|
-| NuGet Package (F# 2.0) | [![NuGet FusionTasks (F# 2.0)](https://img.shields.io/nuget/v/FSharp.Control.FusionTasks.FS20.svg?style=flat)](https://www.nuget.org/packages/FSharp.Control.FusionTasks.FS20) |
-| NuGet Package (F# 3.0) | [![NuGet FusionTasks (F# 3.0)](https://img.shields.io/nuget/v/FSharp.Control.FusionTasks.FS30.svg?style=flat)](https://www.nuget.org/packages/FSharp.Control.FusionTasks.FS30) |
-| NuGet Package (F# 3.1) | [![NuGet FusionTasks (F# 3.1)](https://img.shields.io/nuget/v/FSharp.Control.FusionTasks.FS31.svg?style=flat)](https://www.nuget.org/packages/FSharp.Control.FusionTasks.FS31) |
-| NuGet Package (F# 4.0) | [![NuGet FusionTasks (F# 4.0)](https://img.shields.io/nuget/v/FSharp.Control.FusionTasks.FS40.svg?style=flat)](https://www.nuget.org/packages/FSharp.Control.FusionTasks.FS40) |
+| NuGet Package (F# 4.5) | [![NuGet FusionTasks (F# 4.5)](https://img.shields.io/nuget/v/FSharp.Control.FusionTasks.FS45.svg?style=flat)](https://www.nuget.org/packages/FSharp.Control.FusionTasks.FS45) |
+| (Older below, archived) | ---
 | NuGet Package (F# 4.1) | [![NuGet FusionTasks (F# 4.1)](https://img.shields.io/nuget/v/FSharp.Control.FusionTasks.FS41.svg?style=flat)](https://www.nuget.org/packages/FSharp.Control.FusionTasks.FS41) |
+| NuGet Package (F# 4.0) | [![NuGet FusionTasks (F# 4.0)](https://img.shields.io/nuget/v/FSharp.Control.FusionTasks.FS40.svg?style=flat)](https://www.nuget.org/packages/FSharp.Control.FusionTasks.FS40) |
+| NuGet Package (F# 3.1) | [![NuGet FusionTasks (F# 3.1)](https://img.shields.io/nuget/v/FSharp.Control.FusionTasks.FS31.svg?style=flat)](https://www.nuget.org/packages/FSharp.Control.FusionTasks.FS31) |
+| NuGet Package (F# 3.0) | [![NuGet FusionTasks (F# 3.0)](https://img.shields.io/nuget/v/FSharp.Control.FusionTasks.FS30.svg?style=flat)](https://www.nuget.org/packages/FSharp.Control.FusionTasks.FS30) |
+| NuGet Package (F# 2.0) | [![NuGet FusionTasks (F# 2.0)](https://img.shields.io/nuget/v/FSharp.Control.FusionTasks.FS20.svg?style=flat)](https://www.nuget.org/packages/FSharp.Control.FusionTasks.FS20) |
 | Continuous integration | [![AppVeyor FusionTasks](https://img.shields.io/appveyor/ci/kekyo/fsharp-control-fusiontasks.svg?style=flat)](https://ci.appveyor.com/project/kekyo/fsharp-control-fusiontasks) |
 | Gitter | [![Gitter FusionTasks](https://badges.gitter.im/kekyo/FSharp.Control.FusionTasks.svg)](https://gitter.im/kekyo/FSharp.Control.FusionTasks?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) |
 
@@ -56,16 +58,17 @@ public async Task AsyncTest(FSharpAsync<int> asyncIntComp)
 
 ## Benefits
 * Easy interoperability, combination and relation standard .NET OSS packages using Task/ValueTask and F#'s Async.
-* F# 2.0, 3.0, 3.1, 4.0 and 4.1 with .NET Framework 4.0 (or higher) include PCL Profile 7/47/78/259 and .NET Standard 1.6 (or higher).
+* F# 4.5 with .NET Framework 4.5 (or higher), .NET Core 2.0 and .NET Standard 1.6/2.0 (or higher).
 * Ready to LINQPad 5.
 
 ## Environments
-* .NET Framework 4.0 or higher
-* .NET Framework Portable class library (Profile 7/47/78/259)
-* F# 2.0, 3.0, 3.1, 4.0, 4.1 (NuGet package separated, choose one)
+* .NET Framework 4.5 or higher
+* .NET Core 2.0 or higher
+* .NET Standard 1.6/2.0 or higher
+* F# 4.5 or higher
 
 ## How to use
-* Search NuGet package and install "FSharp.Control.FusionTasks.FS??". You must select F# version.
+* Search NuGet package and install "FSharp.Control.FusionTasks.FS45".
 * F# use, autoopen'd namespace "FSharp.Control". "System.Threading.Tasks" is optional.
 * C# use, using namespace "System.Threading.Tasks". "Microsoft.FSharp.Control" is optional.
 
@@ -221,10 +224,14 @@ asyncSequenceData.AsTask().Dump()
  Improvements more easier/effective interfaces.
 
 ## License
-* Copyright (c) 2016-2017 Kouji Matsui
+* Copyright (c) 2016-2018 Kouji Matsui (@kozy_kekyo)
 * Under Apache v2 http://www.apache.org/licenses/LICENSE-2.0
 
 ## History
+* 2.0.0:
+  * Supported F# 4.5, .NET Standard 2.0 and .NET Core 2.0.
+  * Sorry, obsoleted all PCL's libraries. Now FusionTasks supports .NET Framework 4.5, .NET Core 2.0 and .NET Standard 1.6/2.0.
+  * Solution structure refablished. Changed to .NET Core modern-style.
 * 1.1.1:
   * Add ValueTask<'T> bind source overload.
 * 1.1.0:
