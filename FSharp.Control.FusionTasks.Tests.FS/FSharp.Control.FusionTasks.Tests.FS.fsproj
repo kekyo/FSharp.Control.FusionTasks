@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFrameworks>netcoreapp2.0</TargetFrameworks>
     <Version>2.0.0</Version>
+    <NoWarn>988</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Debug'">
@@ -18,13 +19,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Update="FSharp.Core" Version="4.5.0" />
-    <PackageReference Update="System.ValueTuple" Version="4.5.0" />
-    <PackageReference Include="FsUnit" Version="3.1.0" />
+    <PackageReference Update="FSharp.Core" Version="[4.5.0,)" />
+    <PackageReference Update="System.ValueTuple" Version="[4.5.0,)" />
+    <PackageReference Include="System.Threading.Tasks.Extensions" Version="[4.5.1,)" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.7.2" />
-    <PackageReference Include="NUnit" Version="3.10.1" />
-    <PackageReference Include="NUnit3TestAdapter" Version="3.10.0" />
-    <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.1" />
+    <PackageReference Include="NUnit" Version="[3.10.1,)" />
+    <PackageReference Include="NUnit3TestAdapter" Version="[3.10.0,)" />
+    <PackageReference Include="FsUnit" Version="[3.1.0,)" />
   </ItemGroup>
 
   <ItemGroup>
