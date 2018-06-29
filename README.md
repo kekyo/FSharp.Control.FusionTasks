@@ -150,7 +150,7 @@ let asyncCalculate() =
   acs.Async
 ```
 
-### TIPS: Must adding annotation for arguments if using it async workflow:
+### TIPS: We have to add annotation for arguments if using it async workflow:
 
 ``` fsharp
 let asyncInner arg0 = async {
@@ -175,7 +175,7 @@ let asyncInner (arg0:Async<_>) = async {
 * Really need sample codes? huh? :)
 
 ### Easy LINQPad 5 driven:
-* Before setup NuGet package (FSharp.Control.FusionTasks.FS40) the LINQPad NuGet Manager.
+* Before setup NuGet package (FSharp.Control.FusionTasks) the LINQPad NuGet Manager.
 
 ``` fsharp
 open System.IO
@@ -206,7 +206,7 @@ asyncSequenceData.AsTask().Dump()
   * ValueTask&lt;T&gt; performance effective situation maybe chatty-call fragments using both caller C# and awaiter C# codes...
   * ValueTask&lt;T&gt; a little bit or no effect improvement performance, because usage of senario for FusionTasks.
 * "task-like" augumenting is difficult:
-  * The attribute "AsyncMethodBuilderAttribute" must apply TARGET task-like type.
+  * We have to apply to task-like type with the attribute "AsyncMethodBuilderAttribute".
   * Means if already declared type (Sure, we have FSharpAsync&lt;'T&gt;) cannot augument and cannot turn to task-like type.
   * Therefore cannot directly return for FSharpAsync&lt;'T&gt; from C#'s async-await method.
   * And cannot auto handle task-like type by FusionTasks, because no type safe declaration for task-like type...
