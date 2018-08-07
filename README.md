@@ -228,6 +228,8 @@ asyncSequenceData.AsTask().Dump()
 * Under Apache v2 http://www.apache.org/licenses/LICENSE-2.0
 
 ## History
+* 2.0.2:
+  * Fixed add xml comments into package.
 * 2.0.1:
   * Add support ValueTask for non-generic version.
   * Fixed XML comments.
