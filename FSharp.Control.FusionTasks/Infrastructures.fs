@@ -47,7 +47,7 @@ module internal Infrastructures =
       | None -> new OperationCanceledException() |> raise
     with :? OperationCanceledException as e -> e
 
-  let asTask(async: Async<'T>, ct: CancellationToken option) =
+  let asTaskT(async: Async<'T>, ct: CancellationToken option) =
     let tcs = TaskCompletionSource<'T>()
     Async.StartWithContinuations(
       async,
@@ -58,7 +58,17 @@ module internal Infrastructures =
     tcs.Task
 
 #if NET45 || PCL7 || PCL78 || PCL259 || NETSTANDARD1_6 || NETSTANDARD2_0 || NETCOREAPP2_0
-  let asValueTask(async: Async<'T>, ct: CancellationToken option) =
+  let asValueTask(async: Async<Unit>, ct: CancellationToken option) =
+    let tcs = TaskCompletionSource<Unit>()
+    Async.StartWithContinuations(
+      async,
+      tcs.SetResult,
+      tcs.SetException,
+      tcs.SetException, // Derived from original OperationCancelledException
+      safeToken ct)
+    ValueTask(tcs.Task)
+
+  let asValueTaskT(async: Async<'T>, ct: CancellationToken option) =
     let tcs = TaskCompletionSource<'T>()
     Async.StartWithContinuations(
       async,
@@ -94,6 +104,19 @@ module internal Infrastructures =
         |> ignore)
 
 #if NET45 || PCL7 || PCL78 || PCL259 || NETSTANDARD1_6 || NETSTANDARD2_0 || NETCOREAPP2_0
+  let asAsyncV(task: ValueTask, ct: CancellationToken option) =
+    Async.FromContinuations(
+      fun (completed, caught, canceled) ->
+        let task = task.AsTask()
+        task.ContinueWith(
+          new Action<Task>(fun _ ->
+            match task with  
+            | IsFaulted exn -> caught(exn)
+            | IsCanceled -> canceled(createCanceledException ct) // TODO: how to extract implicit caught exceptions from task?
+            | IsCompleted -> completed()),
+          safeToken ct)
+        |> ignore)
+
   let asAsyncVT(task: ValueTask<'T>, ct: CancellationToken option) =
     Async.FromContinuations(
       fun (completed, caught, canceled) ->
@@ -131,6 +154,16 @@ module internal Infrastructures =
         |> ignore)
 
 #if NET45 || PCL7 || PCL78 || PCL259 || NETSTANDARD1_6 || NETSTANDARD2_0 || NETCOREAPP2_0
+  let asAsyncCVTA(cta: ConfiguredValueTaskAsyncAwaitable) =
+    Async.FromContinuations(
+      fun (completed, caught, canceled) ->
+        let awaiter = cta.GetAwaiter()
+        awaiter.OnCompleted(
+          new Action(fun _ ->
+            try completed(awaiter.GetResult())
+            with exn -> caught(exn)))
+        |> ignore)
+
   let asAsyncCVTAT(cta: ConfiguredValueTaskAsyncAwaitable<'T>) =
     Async.FromContinuations(
       fun (completed, caught, canceled) ->

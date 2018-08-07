@@ -28,49 +28,190 @@ open System.Diagnostics
 open System.Threading.Tasks
 
 open NUnit.Framework
-open FsUnit
 
 module AsyncExtensions =
 
   [<Test>]
-  let AsyncBuilderAsAsyncTest() =
-    let r = Random()
-    let data = Seq.init 100000 (fun i -> 0uy) |> Seq.toArray
-    do r.NextBytes data
-    use ms = new MemoryStream()
-    let computation = async {
-        do! ms.WriteAsync(data, 0, data.Length)
+  let AsyncBuilderAsAsyncFromTaskTest() =
+    let test = async {
+      let r = Random()
+      let data = Seq.init 100000 (fun i -> 0uy) |> Seq.toArray
+      do r.NextBytes data
+      use ms = new MemoryStream()
+      let computation = async {
+          do! ms.WriteAsync(data, 0, data.Length)
+          Assert.AreEqual(data, ms.ToArray())
       }
-    do computation |> Async.RunSynchronously  // FSUnit not supported Async/Task based tests, so run synchronously here. 
-    ms.ToArray() |> should equal data
+      do! computation
+    }
+    test.AsTask()
+        
+  [<Test>]
+  let AsyncBuilderAsAsyncFromTaskTTest() =
+    let test = async {
+      let r = Random()
+      let data = Seq.init 100000 (fun i -> 0uy) |> Seq.toArray
+      do r.NextBytes data
+      let computation = async {
+          use ms = new MemoryStream()
+          do ms.Write(data, 0, data.Length)
+          do ms.Position <- 0L
+          let! length = ms.ReadAsync(data, 0, data.Length)
+          Assert.AreEqual(data.Length, length)
+          
+          return ms.ToArray()
+      }
+      let! results = computation
+      Assert.AreEqual(data, results)
+    }
+    test.AsTask()
 
   [<Test>]
   let AsyncBuilderAsAsyncCTATest() =
-    let r = Random()
-    let data = Seq.init 100000 (fun i -> 0uy) |> Seq.toArray
-    do r.NextBytes data
-    use ms = new MemoryStream()
-    let computation = async {
-        do! ms.WriteAsync(data, 0, data.Length).AsyncConfigure(false)
-      }
-    do computation |> Async.RunSynchronously  // FSUnit not supported Async/Task based tests, so run synchronously here. 
-    ms.ToArray() |> should equal data
+    let test = async {
+      let r = Random()
+      let data = Seq.init 100000 (fun i -> 0uy) |> Seq.toArray
+      do r.NextBytes data
+      use ms = new MemoryStream()
+      let computation = async {
+          do! ms.WriteAsync(data, 0, data.Length).AsyncConfigure(false)
+        }
+      do! computation
+      Assert.AreEqual(data, ms.ToArray())
+    }
+    test.AsTask()
     
   [<Test>]
   let AsyncBuilderAsAsyncCTATTest() =
-    let r = Random()
-    let data = Seq.init 100000 (fun i -> 0uy) |> Seq.toArray
-    do r.NextBytes data
-    let computation = async {
-        use ms = new MemoryStream()
-        do ms.Write(data, 0, data.Length)
-        do ms.Position <- 0L
-        let! length = ms.ReadAsync(data, 0, data.Length).AsyncConfigure(false)
-        do length |> should equal data.Length
-        return ms.ToArray()
+    let test = async {
+      let r = Random()
+      let data = Seq.init 100000 (fun i -> 0uy) |> Seq.toArray
+      do r.NextBytes data
+      let computation = async {
+          use ms = new MemoryStream()
+          do ms.Write(data, 0, data.Length)
+          do ms.Position <- 0L
+          let! length = ms.ReadAsync(data, 0, data.Length).AsyncConfigure(false)
+          Assert.AreEqual(data.Length, length)
+
+          return ms.ToArray()
+        }
+      let! results = computation
+      Assert.AreEqual(data, results)
+    }
+    test.AsTask()
+
+#if FS41NET45 || FS4NET45 || FS4PCL259 || FS41NETStandard16 || FS45NETCore20
+
+  [<Test>]
+  let AsyncBuilderAsAsyncFromValueTaskTest() =
+    let test = async {
+      let r = Random()
+      let data = Seq.init 100000 (fun i -> 0uy) |> Seq.toArray
+      do r.NextBytes data
+      use ms = new MemoryStream()
+      let computation = async {
+          do! new ValueTask(ms.WriteAsync(data, 0, data.Length))
+        }
+      do! computation
+      Assert.AreEqual(data, ms.ToArray())
+    }
+    test.AsTask()
+            
+  [<Test>]
+  let AsyncBuilderAsAsyncFromValueTaskTTest() =
+    let test = async {
+      let r = Random()
+      let data = Seq.init 100000 (fun i -> 0uy) |> Seq.toArray
+      do r.NextBytes data
+      let computation = async {
+          use ms = new MemoryStream()
+          do ms.Write(data, 0, data.Length)
+          do ms.Position <- 0L
+          let! length = new ValueTask<int>(ms.ReadAsync(data, 0, data.Length))
+          Assert.AreEqual(data.Length, length)
+
+          return ms.ToArray()
       }
-    let results = computation |> Async.RunSynchronously  // FSUnit not supported Async/Task based tests, so run synchronously here. 
-    results |> should equal data
+      let! results = computation
+      Assert.AreEqual(data, results)
+    }
+    test.AsTask()
+
+  [<Test>]
+  let AsyncBuilderAsAsyncCVTATest() =
+    let test = async {
+      let r = Random()
+      let data = Seq.init 100000 (fun i -> 0uy) |> Seq.toArray
+      do r.NextBytes data
+      use ms = new MemoryStream()
+      let computation = async {
+          do! (new ValueTask(ms.WriteAsync(data, 0, data.Length))).AsyncConfigure(false)
+        }
+      do! computation
+      Assert.AreEqual(data, ms.ToArray())
+    }
+    test.AsTask()
+    
+  [<Test>]
+  let AsyncBuilderAsAsyncCVTATTest() =
+    let test = async {
+      let r = Random()
+      let data = Seq.init 100000 (fun i -> 0uy) |> Seq.toArray
+      do r.NextBytes data
+      let computation = async {
+          use ms = new MemoryStream()
+          do ms.Write(data, 0, data.Length)
+          do ms.Position <- 0L
+          let! length = (new ValueTask<int>(ms.ReadAsync(data, 0, data.Length))).AsyncConfigure(false)
+          Assert.AreEqual(data.Length, length)
+
+          return ms.ToArray()
+        }
+      let! results = computation
+      Assert.AreEqual(data, results)
+    }
+    test.AsTask()
+
+  [<Test>]
+  let AsyncBuilderAsAsyncVTest() =
+    let test = async {
+      let r = Random()
+      let data = Seq.init 100000 (fun i -> 0uy) |> Seq.toArray
+      do r.NextBytes data
+      let computation = async {
+          use ms = new MemoryStream()
+          do! new ValueTask(ms.WriteAsync(data, 0, data.Length))
+          do ms.Position <- 0L
+          let length = ms.Read(data, 0, data.Length)
+          Assert.AreEqual(data.Length, length)
+
+          return ms.ToArray()
+      }
+      let! results = computation
+      Assert.AreEqual(data, results)
+    }
+    test.AsTask()
+
+  [<Test>]
+  let AsyncBuilderAsAsyncVTTest() =
+    let test = async {
+      let r = Random()
+      let data = Seq.init 100000 (fun i -> 0uy) |> Seq.toArray
+      do r.NextBytes data
+      let computation = async {
+          use ms = new MemoryStream()
+          do ms.Write(data, 0, data.Length)
+          do ms.Position <- 0L
+          let! length = new ValueTask<int>(ms.ReadAsync(data, 0, data.Length))
+          Assert.AreEqual(data.Length, length)
+          return ms.ToArray()
+        }
+      let! results = computation
+      Assert.AreEqual(data, results)
+    }
+    test.AsTask()
+#endif
 
   [<Test>]
   let AsyncBuilderWithAsyncAndTaskCombinationTest() =
@@ -83,44 +224,10 @@ module AsyncExtensions =
     let computation = async {
         let! data = asyncGenData()
         use ms = new MemoryStream()
-        do ms.Write(data, 0, data.Length)
-        do ms.ToArray() |> should equal data
+        do! ms.WriteAsync(data, 0, data.Length)
+        Assert.AreEqual(data, ms.ToArray())
       }
-    computation |> Async.RunSynchronously  // FSUnit not supported Async/Task based tests, so run synchronously here. 
-
-#if FS41NET45 || FS4NET45 || FS4PCL259 || FS41NETStandard16 || FS45NETCore20
-  [<Test>]
-  let AsyncBuilderAsAsyncVTTest() =
-    let r = Random()
-    let data = Seq.init 100000 (fun i -> 0uy) |> Seq.toArray
-    do r.NextBytes data
-    let computation = async {
-        use ms = new MemoryStream()
-        do ms.Write(data, 0, data.Length)
-        do ms.Position <- 0L
-        let! length = new ValueTask<int>(ms.ReadAsync(data, 0, data.Length))
-        do length |> should equal data.Length
-        return ms.ToArray()
-      }
-    let results = computation |> Async.RunSynchronously  // FSUnit not supported Async/Task based tests, so run synchronously here. 
-    results |> should equal data
-
-  [<Test>]
-  let AsyncBuilderAsAsyncCVTATTest() =
-    let r = Random()
-    let data = Seq.init 100000 (fun i -> 0uy) |> Seq.toArray
-    do r.NextBytes data
-    let computation = async {
-        use ms = new MemoryStream()
-        do ms.Write(data, 0, data.Length)
-        do ms.Position <- 0L
-        let! length = (new ValueTask<int>(ms.ReadAsync(data, 0, data.Length))).AsyncConfigure(false)
-        do length |> should equal data.Length
-        return ms.ToArray()
-      }
-    let results = computation |> Async.RunSynchronously  // FSUnit not supported Async/Task based tests, so run synchronously here. 
-    results |> should equal data
-#endif
+    computation.AsTask()
 
   [<Test>]
   let AsyncBuilderCompilesForInTest() =
@@ -128,7 +235,7 @@ module AsyncExtensions =
         let mutable result = 0
         for i in {1..10} do
           result <- result + i
-        do result |> should equal 55
+        Assert.AreEqual(55, result)
       }
 
-    computation |> Async.RunSynchronously  // FSUnit not supported Async/Task based tests, so run synchronously here. 
+    computation.AsTask()

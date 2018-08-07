@@ -38,9 +38,9 @@ module AsyncExtensions =
     /// </summary>
     /// <param name="async">F# Async</param>
     /// <param name="token">Cancellation token (optional)</param>
-    /// <returns>.NET Task</returns>
+    /// <returns>.NET Task instance</returns>
     static member AsTask(async: Async<unit>, ?token: CancellationToken) =
-      Infrastructures.asTask(async, token) :> Task
+      Infrastructures.asTaskT(async, token) :> Task
 
     /// <summary>
     /// Seamless conversion from F# Async to .NET Task.
@@ -48,9 +48,9 @@ module AsyncExtensions =
     /// <typeparam name="'T">Computation result type</typeparam> 
     /// <param name="async">F# Async</param>
     /// <param name="token">Cancellation token (optional)</param>
-    /// <returns>.NET Task</returns>
+    /// <returns>.NET Task instance</returns>
     static member AsTask(async: Async<'T>, ?token: CancellationToken) =
-      Infrastructures.asTask(async, token)
+      Infrastructures.asTaskT(async, token)
 
   ///////////////////////////////////////////////////////////////////////////////////
   // F# side Task class extensions.
@@ -62,7 +62,7 @@ module AsyncExtensions =
     /// </summary>
     /// <param name="task">.NET Task</param>
     /// <param name="token">Cancellation token (optional)</param>
-    /// <returns>F# Async</returns>
+    /// <returns>F# Async instance</returns>
     member task.AsAsync(?token: CancellationToken) =
       Infrastructures.asAsync(task, token)
 
@@ -71,7 +71,7 @@ module AsyncExtensions =
     /// </summary>
     /// <param name="task">.NET Task</param>
     /// <param name="continueOnCapturedContext">True if continuation running on captured SynchronizationContext</param>
-    /// <returns>ConfiguredAsyncAwaitable</returns>
+    /// <returns>ConfiguredAsyncAwaitable instance</returns>
     member task.AsyncConfigure(continueOnCapturedContext: bool) =
       ConfiguredTaskAsyncAwaitable(task.ConfigureAwait(continueOnCapturedContext))
 
@@ -81,40 +81,62 @@ module AsyncExtensions =
     /// Seamless conversion from .NET Task to F# Async.
     /// </summary>
     /// <typeparam name="'T">Computation result type</typeparam> 
-    /// <param name="task">.NET Task</param>
+    /// <param name="task">.NET Task&lt;'T&gt;</param>
     /// <param name="token">Cancellation token (optional)</param>
-    /// <returns>F# Async</returns>
+    /// <returns>F# Async instance</returns>
     member task.AsAsync(?token: CancellationToken) =
       Infrastructures.asAsyncT(task, token)
 
     /// <summary>
     /// Seamless conversionable substitution Task.ConfigureAwait()
     /// </summary>
+    /// <typeparam name="'T">Computation result type</typeparam> 
     /// <param name="task">.NET Task&lt;'T&gt;</param>
     /// <param name="continueOnCapturedContext">True if continuation running on captured SynchronizationContext</param>
-    /// <returns>ConfiguredAsyncAwaitable</returns>
+    /// <returns>ConfiguredAsyncAwaitable instance</returns>
     member task.AsyncConfigure(continueOnCapturedContext: bool) =
       ConfiguredTaskAsyncAwaitable<'T>(task.ConfigureAwait(continueOnCapturedContext))
 
 #if NET45 || PCL7 || PCL78 || PCL259 || NETSTANDARD1_6 || NETSTANDARD2_0 || NETCOREAPP2_0
+  type ValueTask with
+
+    /// <summary>
+    /// Seamless conversion from .NET ValueTask to F# Async.
+    /// </summary>
+    /// <param name="task">.NET ValueTask</param>
+    /// <param name="token">Cancellation token (optional)</param>
+    /// <returns>F# Async instance</returns>
+    member task.AsAsync(?token: CancellationToken) =
+      Infrastructures.asAsyncV(task, token)
+
+    /// <summary>
+    /// Seamless conversionable substitution ValueTask.ConfigureAwait()
+    /// </summary>
+    /// <param name="task">.NET ValueTask</param>
+    /// <param name="continueOnCapturedContext">True if continuation running on captured SynchronizationContext</param>
+    /// <returns>ConfiguredAsyncAwaitable instance</returns>
+    member task.AsyncConfigure(continueOnCapturedContext: bool) =
+      ConfiguredValueTaskAsyncAwaitable(task.ConfigureAwait(continueOnCapturedContext))
+
   type ValueTask<'T> with
 
     /// <summary>
     /// Seamless conversion from .NET ValueTask to F# Async.
     /// </summary>
     /// <typeparam name="'T">Computation result type</typeparam> 
-    /// <param name="task">.NET ValueTask</param>
+    /// <param name="task">.NET ValueTask&lt;'T&gt;</param>
     /// <param name="token">Cancellation token (optional)</param>
-    /// <returns>F# Async</returns>
+    /// <returns>F# Async instance</returns>
     member task.AsAsync(?token: CancellationToken) =
       Infrastructures.asAsyncVT(task, token)
 
     /// <summary>
     /// Seamless conversionable substitution ValueTask.ConfigureAwait()
     /// </summary>
+    /// <typeparam name="'T">Computation result type</typeparam> 
     /// <param name="task">.NET ValueTask&lt;'T&gt;</param>
     /// <param name="continueOnCapturedContext">True if continuation running on captured SynchronizationContext</param>
-    /// <returns>ConfiguredAsyncAwaitable</returns>
+    /// <returns>ConfiguredAsyncAwaitable instance</returns>
     member task.AsyncConfigure(continueOnCapturedContext: bool) =
       ConfiguredValueTaskAsyncAwaitable<'T>(task.ConfigureAwait(continueOnCapturedContext))
 #endif
@@ -128,7 +150,7 @@ module AsyncExtensions =
     /// Seamless conversion from .NET Task to F# Async.
     /// </summary>
     /// <param name="cta">.NET ConfiguredTaskAwaitable (expr.ConfigureAwait(...))</param>
-    /// <returns>F# Async</returns>
+    /// <returns>F# Async instance.</returns>
     member cta.AsAsync() =
       Infrastructures.asAsyncCTA(cta)
  
@@ -139,11 +161,21 @@ module AsyncExtensions =
     /// </summary>
     /// <typeparam name="'T">Computation result type</typeparam> 
     /// <param name="cta">.NET ConfiguredTaskAwaitable (expr.ConfigureAwait(...))</param>
-    /// <returns>F# Async</returns>
+    /// <returns>F# Async instance.</returns>
     member cta.AsAsync() =
       Infrastructures.asAsyncCTAT(cta)
 
 #if NET45 || PCL7 || PCL78 || PCL259 || NETSTANDARD1_6 || NETSTANDARD2_0 || NETCOREAPP2_0
+  type ConfiguredValueTaskAsyncAwaitable with
+
+    /// <summary>
+    /// Seamless conversion from .NET Task to F# Async.
+    /// </summary>
+    /// <param name="cta">.NET ConfiguredValueTaskAwaitable (expr.ConfigureAwait(...))</param>
+    /// <returns>F# Async instance.</returns>
+    member cta.AsAsync() =
+      Infrastructures.asAsyncCVTA(cta)
+
   type ConfiguredValueTaskAsyncAwaitable<'T> with
 
     /// <summary>
@@ -151,7 +183,7 @@ module AsyncExtensions =
     /// </summary>
     /// <typeparam name="'T">Computation result type</typeparam> 
     /// <param name="cta">.NET ConfiguredValueTaskAwaitable (expr.ConfigureAwait(...))</param>
-    /// <returns>F# Async</returns>
+    /// <returns>F# Async instance.</returns>
     member cta.AsAsync() =
       Infrastructures.asAsyncCVTAT(cta)
 #endif
@@ -173,7 +205,7 @@ module AsyncExtensions =
     /// Seamless conversion from .NET Task to F# Async in Async workflow.
     /// </summary>
     /// <param name="task">.NET Task (expression result)</param>
-    /// <returns>F# Async</returns>
+    /// <returns>F# Async instance.</returns>
     member __.Source(task: Task) =
       Infrastructures.asAsync(task, None)
 
@@ -181,8 +213,8 @@ module AsyncExtensions =
     /// Seamless conversion from .NET Task to F# Async in Async workflow.
     /// </summary>
     /// <typeparam name="'T">Computation result type</typeparam> 
-    /// <param name="task">.NET Task (expression result)</param>
-    /// <returns>F# Async</returns>
+    /// <param name="task">.NET Task&lt;'T&gt; (expression result)</param>
+    /// <returns>F# Async instance.</returns>
     member __.Source(task: Task<'T>) =
       Infrastructures.asAsyncT(task, None)
 
@@ -190,7 +222,7 @@ module AsyncExtensions =
     /// Seamless conversion from .NET Task to F# Async in Async workflow.
     /// </summary>
     /// <param name="cta">.NET ConfiguredTaskAwaitable (expr.ConfigureAwait(...))</param>
-    /// <returns>F# Async</returns>
+    /// <returns>F# Async instance.</returns>
     member __.Source(cta: ConfiguredTaskAsyncAwaitable) =
       Infrastructures.asAsyncCTA(cta)
 
@@ -198,8 +230,8 @@ module AsyncExtensions =
     /// Seamless conversion from .NET Task to F# Async in Async workflow.
     /// </summary>
     /// <typeparam name="'T">Computation result type</typeparam> 
-    /// <param name="cta">.NET ConfiguredTaskAwaitable (expr.ConfigureAwait(...))</param>
-    /// <returns>F# Async</returns>
+    /// <param name="cta">.NET ConfiguredTaskAwaitable&lt;'T&gt; (expr.ConfigureAwait(...))</param>
+    /// <returns>F# Async instance.</returns>
     member __.Source(cta: ConfiguredTaskAsyncAwaitable<'T>) =
       Infrastructures.asAsyncCTAT(cta)
 
@@ -207,9 +239,25 @@ module AsyncExtensions =
     /// <summary>
     /// Seamless conversion from .NET Task to F# Async in Async workflow.
     /// </summary>
-    /// <typeparam name="'T">Computation result type</typeparam> 
     /// <param name="task">.NET ValueTask (expression result)</param>
-    /// <returns>F# Async</returns>
+    /// <returns>F# Async instance.</returns>
+    member __.Source(task: ValueTask) =
+       Infrastructures.asAsyncV(task, None)
+ 
+    /// <summary>
+    /// Seamless conversion from .NET Task to F# Async in Async workflow.
+    /// </summary>
+    /// <param name="cta">.NET ConfiguredValueTaskAwaitable (expr.ConfigureAwait(...))</param>
+    /// <returns>F# Async instance.</returns>
+    member __.Source(cta: ConfiguredValueTaskAsyncAwaitable) =
+      Infrastructures.asAsyncCVTA(cta)
+
+    /// <summary>
+    /// Seamless conversion from .NET Task to F# Async in Async workflow.
+    /// </summary>
+    /// <typeparam name="'T">Computation result type</typeparam> 
+    /// <param name="task">.NET ValueTask&lt;'T&gt; (expression result)</param>
+    /// <returns>F# Async instance.</returns>
     member __.Source(task: ValueTask<'T>) =
        Infrastructures.asAsyncVT(task, None)
  
@@ -217,8 +265,8 @@ module AsyncExtensions =
     /// Seamless conversion from .NET Task to F# Async in Async workflow.
     /// </summary>
     /// <typeparam name="'T">Computation result type</typeparam> 
-    /// <param name="cta">.NET ConfiguredValueTaskAwaitable (expr.ConfigureAwait(...))</param>
-    /// <returns>F# Async</returns>
+    /// <param name="cta">.NET ConfiguredValueTaskAwaitable&lt;'T&gt; (expr.ConfigureAwait(...))</param>
+    /// <returns>F# Async instance.</returns>
     member __.Source(cta: ConfiguredValueTaskAsyncAwaitable<'T>) =
       Infrastructures.asAsyncCVTAT(cta)
 #endif
@@ -228,7 +276,6 @@ module AsyncExtensions =
     /// </summary>
     /// <typeparam name="'E">The element type of the sequence</typeparam> 
     /// <param name="s">The sequence.</param>
-    /// <returns>F# Async</returns>
+    /// <returns>The sequence.</returns>
     member __.Source(s: 'R seq) =
       s
-    

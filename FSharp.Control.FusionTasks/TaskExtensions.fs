@@ -104,6 +104,35 @@ type ValueTaskExtensions =
 
   ///////////////////////////////////////////////////////////////////////////////////
   // .NET (C#) side ValueTask --> Async conversion extensions.
+  
+  /// <summary>
+  /// Seamless conversion from .NET ValueTask to F# Async.
+  /// </summary>
+  /// <param name="task">.NET ValueTask</param>
+  /// <returns>F# Async&lt;Unit&gt; (FSharpAsync&lt;Unit&gt;)</returns>
+  [<Extension>]
+  static member AsAsync (task: ValueTask) =
+    Infrastructures.asAsyncV (task, None)
+    
+  /// <summary>
+  /// Seamless conversion from .NET ValueTask to F# Async.
+  /// </summary>
+  /// <param name="task">.NET ValueTask</param>
+  /// <param name="token">Cancellation token</param>
+  /// <returns>F# Async&lt;Unit&gt; (FSharpAsync&lt;Unit&gt;)</returns>
+  [<Extension>]
+  static member AsAsync (task: ValueTask, token: CancellationToken) =
+    Infrastructures.asAsyncV (task, Some token)
+    
+  /// <summary>
+  /// Seamless conversion from .NET ValueTask to F# Async.
+  /// </summary>
+  /// <param name="task">.NET ValueTask</param>
+  /// <param name="continueOnCapturedContext">True if continuation running on captured SynchronizationContext</param>
+  /// <returns>F# Async&lt;Unit&gt; (FSharpAsync&lt;Unit&gt;)</returns>
+  [<Extension>]
+  static member AsAsyncConfigured (task: ValueTask, continueOnCapturedContext: bool) =
+    Infrastructures.asAsyncCVTA (ConfiguredValueTaskAsyncAwaitable(task.ConfigureAwait(continueOnCapturedContext)))
 
   /// <summary>
   /// Seamless conversion from .NET ValueTask to F# Async.
@@ -162,7 +191,7 @@ type AsyncExtensions =
   /// <returns>.NET Task</returns>
   [<Extension>]
   static member AsTask (async: Async<unit>) =
-    Infrastructures.asTask (async, None) :> Task
+    Infrastructures.asTaskT (async, None) :> Task
 
   /// <summary>
   /// Seamless conversion from F# Async to .NET Task.
@@ -172,7 +201,7 @@ type AsyncExtensions =
   /// <returns>.NET Task</returns>
   [<Extension>]
   static member AsTask (async: Async<unit>, token: CancellationToken) =
-    Infrastructures.asTask (async, Some token) :> Task
+    Infrastructures.asTaskT (async, Some token) :> Task
 
   /// <summary>
   /// Seamless conversion from F# Async to .NET Task.
@@ -182,7 +211,7 @@ type AsyncExtensions =
   /// <returns>.NET Task&lt;'T&gt;</returns>
   [<Extension>]
   static member AsTask (async: Async<'T>) =
-    Infrastructures.asTask (async, None)
+    Infrastructures.asTaskT (async, None)
 
   /// <summary>
   /// Seamless conversion from F# Async to .NET Task.
@@ -193,11 +222,30 @@ type AsyncExtensions =
   /// <returns>.NET Task&lt;'T&gt;</returns>
   [<Extension>]
   static member AsTask (async: Async<'T>, token: CancellationToken) =
-    Infrastructures.asTask (async, Some token)
+    Infrastructures.asTaskT (async, Some token)
 
 #if NET45 || PCL7 || PCL78 || PCL259 || NETSTANDARD1_6 || NETSTANDARD2_0 || NETCOREAPP2_0
   ///////////////////////////////////////////////////////////////////////////////////
   // .NET (C#) side Async --> ValueTask conversion extensions.
+  
+  /// <summary>
+  /// Seamless conversion from F# Async to .NET ValueTask.
+  /// </summary>
+  /// <param name="async">F# Async&lt;unit&gt; (FSharpAsync&lt;unit&gt;)</param>
+  /// <returns>.NET ValueTask</returns>
+  [<Extension>]
+  static member AsValueTask (async: Async<unit>) =
+    Infrastructures.asValueTask (async, None)
+
+  /// <summary>
+  /// Seamless conversion from F# Async to .NET ValueTask.
+  /// </summary>
+  /// <param name="async">F# Async&lt;unit&gt; (FSharpAsync&lt;unit&gt;)</param>
+  /// <param name="token">Cancellation token</param>
+  /// <returns>.NET ValueTask</returns>
+  [<Extension>]
+  static member AsValueTask (async: Async<unit>, token: CancellationToken) =
+    Infrastructures.asValueTask (async, Some token)
 
   /// <summary>
   /// Seamless conversion from F# Async to .NET ValueTask.
@@ -207,7 +255,7 @@ type AsyncExtensions =
   /// <returns>.NET ValueTask&lt;'T&gt;</returns>
   [<Extension>]
   static member AsValueTask (async: Async<'T>) =
-    Infrastructures.asValueTask (async, None)
+    Infrastructures.asValueTaskT (async, None)
 
   /// <summary>
   /// Seamless conversion from F# Async to .NET ValueTask.
@@ -218,7 +266,7 @@ type AsyncExtensions =
   /// <returns>.NET ValueTask&lt;'T&gt;</returns>
   [<Extension>]
   static member AsValueTask (async: Async<'T>, token: CancellationToken) =
-    Infrastructures.asValueTask (async, Some token)
+    Infrastructures.asValueTaskT (async, Some token)
 #endif
 
   ///////////////////////////////////////////////////////////////////////////////////
@@ -227,12 +275,12 @@ type AsyncExtensions =
   /// <summary>
   /// Seamless configuring context support for F# Async.
   /// </summary>
-  /// <param name="async">F# Async (FSharpAsync&lt;Unit&gt;)</param>
+  /// <param name="async">F# Async (FSharpAsync&lt;unit&gt;)</param>
   /// <param name="continueOnCapturedContext">True if continuation running on captured SynchronizationContext</param>
   /// <returns>.NET TaskAwaiter</returns>
   [<Extension>]
   static member ConfigureAwait (async: Async<unit>, continueOnCapturedContext: bool) =
-    let task = Infrastructures.asTask (async, None) :> Task
+    let task = Infrastructures.asTaskT (async, None) :> Task
     ConfiguredTaskAsyncAwaitable(task.ConfigureAwait(continueOnCapturedContext))
 
   /// <summary>
@@ -244,7 +292,7 @@ type AsyncExtensions =
   /// <returns>.NET TaskAwaiter&lt;'T&gt;</returns>
   [<Extension>]
   static member ConfigureAwait (async: Async<'T>, continueOnCapturedContext: bool) =
-    let task = Infrastructures.asTask (async, None)
+    let task = Infrastructures.asTaskT (async, None)
     ConfiguredTaskAsyncAwaitable<'T>(task.ConfigureAwait(continueOnCapturedContext))
 
   ///////////////////////////////////////////////////////////////////////////////////
@@ -253,11 +301,11 @@ type AsyncExtensions =
   /// <summary>
   /// Seamless awaiter support for F# Async.
   /// </summary>
-  /// <param name="async">F# Async (FSharpAsync&lt;Unit&gt;)</param>
+  /// <param name="async">F# Async (FSharpAsync&lt;unit&gt;)</param>
   /// <returns>.NET TaskAwaiter</returns>
   [<Extension>]
   static member GetAwaiter (async: Async<unit>) =
-    let task = Infrastructures.asTask (async, None) :> Task
+    let task = Infrastructures.asTaskT (async, None) :> Task
     AsyncAwaiter(task.GetAwaiter())
 
   /// <summary>
@@ -268,5 +316,5 @@ type AsyncExtensions =
   /// <returns>.NET TaskAwaiter&lt;'T&gt;</returns>
   [<Extension>]
   static member GetAwaiter (async: Async<'T>) =
-    let task = Infrastructures.asTask (async, None)
+    let task = Infrastructures.asTaskT (async, None)
     AsyncAwaiter<'T>(task.GetAwaiter())

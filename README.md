@@ -228,6 +228,9 @@ asyncSequenceData.AsTask().Dump()
 * Under Apache v2 http://www.apache.org/licenses/LICENSE-2.0
 
 ## History
+* 2.0.1:
+  * Add support ValueTask for non-generic version.
+  * Fixed XML comments.
 * 2.0.0:
   * Supported F# 4.5, .NET Standard 2.0 and .NET Core 2.0.
   * Sorry, archived all PCL's libraries. Now FusionTasks supports only .NET Framework 4.5, .NET Core 2.0 and .NET Standard 1.6/2.0.

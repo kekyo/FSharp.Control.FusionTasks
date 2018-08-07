@@ -122,6 +122,28 @@ type ConfiguredTaskAsyncAwaitable<'T> internal (cta: ConfiguredTaskAwaitable<'T>
 /// F# Async's awaiter implementation. This structure using implicitly.
 /// </summary>
 [<Struct; NoEquality; NoComparison; AutoSerializable(false)>]
+type ConfiguredValueTaskAsyncAwaiter internal (ctacta: ConfiguredValueTaskAwaitable.ConfiguredValueTaskAwaiter) =
+
+    member __.IsCompleted = ctacta.IsCompleted
+    member __.OnCompleted(continuation: Action) = ctacta.OnCompleted(continuation)
+    member __.UnsafeOnCompleted(continuation: Action) = ctacta.UnsafeOnCompleted(continuation)
+    member __.GetResult() = ctacta.GetResult()
+        
+    interface System.Runtime.CompilerServices.INotifyCompletion with
+       member __.OnCompleted(continuation: Action) = ctacta.OnCompleted(continuation)
+
+/// <summary>
+/// F# Async's awaitable implementation. This structure using implicitly.
+/// </summary>
+[<Struct; NoEquality; NoComparison; AutoSerializable(false)>]
+type ConfiguredValueTaskAsyncAwaitable internal (cta: ConfiguredValueTaskAwaitable) =
+
+    member __.GetAwaiter() = ConfiguredValueTaskAsyncAwaiter(cta.GetAwaiter())
+
+/// <summary>
+/// F# Async's awaiter implementation. This structure using implicitly.
+/// </summary>
+[<Struct; NoEquality; NoComparison; AutoSerializable(false)>]
 type ConfiguredValueTaskAsyncAwaiter<'T> internal (ctacta: ConfiguredValueTaskAwaitable<'T>.ConfiguredValueTaskAwaiter) =
 
     member __.IsCompleted = ctacta.IsCompleted
