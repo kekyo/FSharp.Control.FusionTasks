@@ -1,7 +1,7 @@
 ﻿/////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // FSharp.Control.FusionTasks - F# Async workflow <--> .NET Task easy seamless interoperability library.
-// Copyright (c) 2016-2018 Kouji Matsui (@kozy_kekyo)
+// Copyright (c) 2016-2021 Kouji Matsui (@kozy_kekyo, @kekyo2)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -26,10 +26,7 @@ using Microsoft.FSharp.Core;
 using NUnit;
 using NUnit.Framework;
 
-#if FS45NETCore20
-// Validate for .NET Core 2.0 (F# 4.5)
-namespace FSharp.Control.FusionTasks.Tests.FS45NETCore20
-#endif
+namespace FSharp.Control.FusionTasks.Tests
 {
     [TestFixture]
     public class TaskExtensionsTests
@@ -89,7 +86,6 @@ namespace FSharp.Control.FusionTasks.Tests.FS45NETCore20
             Assert.AreEqual(123, result);
         }
 
-#if FS41NET45 || FS4NET45 || FS4PCL259 || FS41NETStandard16 || FS45NETCore20
         private static ValueTask<int> DelayAndReturnAsyncByValueTask()
         {
             return new ValueTask<int>(DelayAndReturnAsync());
@@ -116,7 +112,6 @@ namespace FSharp.Control.FusionTasks.Tests.FS45NETCore20
             var result = FSharpAsync.RunSynchronously(asy, FSharpOption<int>.None, FSharpOption<CancellationToken>.None);
             Assert.AreEqual(123, result);
         }
-#endif
         #endregion
 
         #region FSharpAsync<'T>.AsTask
@@ -153,7 +148,7 @@ namespace FSharp.Control.FusionTasks.Tests.FS45NETCore20
             cts.Cancel();
 
             // Continuation point. (Will raise exception)
-            Assert.ThrowsAsync<OperationCanceledException>(() => outerTask);
+            Assert.ThrowsAsync<TaskCanceledException>(() => outerTask);
         }
 
         private static async Task<int> DelayAndReturnAsync(CancellationToken token)
@@ -167,7 +162,7 @@ namespace FSharp.Control.FusionTasks.Tests.FS45NETCore20
         {
             // Information:
             //   F#'s CancellationToken is managing contextual token in async computation expression.
-            //   But .NET CancellationToken is no contextual/default token, in C# too.
+            //   But .NET CancellationToken is non contextual/default token, in C# too.
             //   So no automatic implicit derive tokens, token just explicit set to any async operation:
             //     Task.Delay(int, token) <-- DelayAndReturnAsync(token) <-- cts.Token
 
@@ -185,10 +180,9 @@ namespace FSharp.Control.FusionTasks.Tests.FS45NETCore20
             cts.Cancel();
 
             // Continuation point. (Will raise exception)
-            Assert.ThrowsAsync<OperationCanceledException>(() => outerTask);
+            Assert.ThrowsAsync<TaskCanceledException>(() => outerTask);
         }
 
-#if FS41NET45 || FS4NET45 || FS4PCL259 || FS41NETStandard16 || FS45NETCore20
         private static ValueTask<int> DelayAndReturnAsyncByValueTask(CancellationToken token)
         {
             return new ValueTask<int>(DelayAndReturnAsync(token));
@@ -199,7 +193,7 @@ namespace FSharp.Control.FusionTasks.Tests.FS45NETCore20
         {
             // Information:
             //   F#'s CancellationToken is managing contextual token in async computation expression.
-            //   But .NET CancellationToken is no contextual/default token, in C# too.
+            //   But .NET CancellationToken is non contextual/default token, in C# too.
             //   So no automatic implicit derive tokens, token just explicit set to any async operation:
             //     Task.Delay(int, token) <-- DelayAndReturnAsync(token) <-- cts.Token
 
@@ -217,9 +211,8 @@ namespace FSharp.Control.FusionTasks.Tests.FS45NETCore20
             cts.Cancel();
 
             // Continuation point. (Will raise exception)
-            Assert.ThrowsAsync<OperationCanceledException>(() => outerTask);
+            Assert.ThrowsAsync<TaskCanceledException>(() => outerTask);
         }
-#endif
         #endregion
 
         #region FSharpAsync<'T>.GetAwaiter
@@ -241,5 +234,37 @@ namespace FSharp.Control.FusionTasks.Tests.FS45NETCore20
             Assert.AreEqual(123, result);
         }
         #endregion
+
+        [Test]
+        public void HoldSynchContextTest()
+        {
+            var id1 = Thread.CurrentThread.ManagedThreadId;
+            var context = new ThreadBoundSynchronizationContext();
+            SynchronizationContext.SetSynchronizationContext(context);
+
+            async Task ComputationAsync()
+            {
+                var idStartImmediately = Thread.CurrentThread.ManagedThreadId;
+                Assert.AreEqual(id1, idStartImmediately);
+
+                await FSharpAsync.StartImmediateAsTask(
+                    FSharpAsync.Sleep(300), FSharpOption<CancellationToken>.None);
+                var idAwaitTask = Thread.CurrentThread.ManagedThreadId;
+                Assert.AreEqual(id1, idAwaitTask);
+
+                await FSharpAsync.Sleep(300).AsTask();
+                var idAwaited1 = Thread.CurrentThread.ManagedThreadId;
+                Assert.AreEqual(id1, idAwaited1);
+
+                await FSharpAsync.Sleep(300).AsTask();
+                var idAwaited2 = Thread.CurrentThread.ManagedThreadId;
+                Assert.AreEqual(id1, idAwaited2);
+
+                context.Quit();
+            }
+
+            var _ = ComputationAsync();
+            context.Run();
+        }
     }
 }

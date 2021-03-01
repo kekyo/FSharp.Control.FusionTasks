@@ -1,7 +1,7 @@
 ﻿/////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // FSharp.Control.FusionTasks - F# Async workflow <--> .NET Task easy seamless interoperability library.
-// Copyright (c) 2016-2018 Kouji Matsui (@kozy_kekyo)
+// Copyright (c) 2016-2021 Kouji Matsui (@kozy_kekyo, @kekyo2)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -97,7 +97,6 @@ module AsyncExtensions =
     member task.AsyncConfigure(continueOnCapturedContext: bool) =
       ConfiguredTaskAsyncAwaitable<'T>(task.ConfigureAwait(continueOnCapturedContext))
 
-#if NET45 || PCL7 || PCL78 || PCL259 || NETSTANDARD1_6 || NETSTANDARD2_0 || NETCOREAPP2_0
   type ValueTask with
 
     /// <summary>
@@ -139,7 +138,6 @@ module AsyncExtensions =
     /// <returns>ConfiguredAsyncAwaitable instance</returns>
     member task.AsyncConfigure(continueOnCapturedContext: bool) =
       ConfiguredValueTaskAsyncAwaitable<'T>(task.ConfigureAwait(continueOnCapturedContext))
-#endif
   
   ///////////////////////////////////////////////////////////////////////////////////
   // F# side ConfiguredAsyncAwaitable class extensions.
@@ -165,7 +163,6 @@ module AsyncExtensions =
     member cta.AsAsync() =
       Infrastructures.asAsyncCTAT(cta)
 
-#if NET45 || PCL7 || PCL78 || PCL259 || NETSTANDARD1_6 || NETSTANDARD2_0 || NETCOREAPP2_0
   type ConfiguredValueTaskAsyncAwaitable with
 
     /// <summary>
@@ -186,7 +183,6 @@ module AsyncExtensions =
     /// <returns>F# Async instance.</returns>
     member cta.AsAsync() =
       Infrastructures.asAsyncCVTAT(cta)
-#endif
 
   ///////////////////////////////////////////////////////////////////////////////////
   // F# side async computation builder extensions.
@@ -235,7 +231,6 @@ module AsyncExtensions =
     member __.Source(cta: ConfiguredTaskAsyncAwaitable<'T>) =
       Infrastructures.asAsyncCTAT(cta)
 
-#if NET45 || PCL7 || PCL78 || PCL259 || NETSTANDARD1_6 || NETSTANDARD2_0 || NETCOREAPP2_0
     /// <summary>
     /// Seamless conversion from .NET Task to F# Async in Async workflow.
     /// </summary>
@@ -269,7 +264,6 @@ module AsyncExtensions =
     /// <returns>F# Async instance.</returns>
     member __.Source(cta: ConfiguredValueTaskAsyncAwaitable<'T>) =
       Infrastructures.asAsyncCVTAT(cta)
-#endif
 
     /// <summary>
     /// Accept any sequence type to support `for .. in` expressions in Async workflows.

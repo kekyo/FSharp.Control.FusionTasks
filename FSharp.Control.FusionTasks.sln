@@ -1,13 +1,14 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27703.2000
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31005.135
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{BEB599F7-8021-4E01-9200-B9ABF1D9D623}"
 	ProjectSection(SolutionItems) = preProject
 		.gitignore = .gitignore
-		appveyor.yml = appveyor.yml
 		build-nupkg.bat = build-nupkg.bat
+		.github\workflows\build.yml = .github\workflows\build.yml
+		FSharp.Control.FusionTasks.sln.licenseheader = FSharp.Control.FusionTasks.sln.licenseheader
 		LICENSE.txt = LICENSE.txt
 		README.md = README.md
 	EndProjectSection
@@ -24,6 +25,8 @@ EndProject
 Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "FSharp.Control.FusionTasks.Tests.FS", "FSharp.Control.FusionTasks.Tests.FS\FSharp.Control.FusionTasks.Tests.FS.fsproj", "{053C93E0-E0F1-41FB-9F29-9D9877C685DF}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FSharp.Control.FusionTasks.Tests.CS", "FSharp.Control.FusionTasks.Tests.CS\FSharp.Control.FusionTasks.Tests.CS.csproj", "{46EC46A3-A601-4B04-9CB0-0113D01E8F8A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ThreadBoundSynchronizationContext", "ThreadBoundSynchronizationContext\ThreadBoundSynchronizationContext.csproj", "{82D2F316-2714-4C97-A15B-E351CCA36094}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -43,6 +46,10 @@ Global
 		{46EC46A3-A601-4B04-9CB0-0113D01E8F8A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{46EC46A3-A601-4B04-9CB0-0113D01E8F8A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{46EC46A3-A601-4B04-9CB0-0113D01E8F8A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{82D2F316-2714-4C97-A15B-E351CCA36094}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{82D2F316-2714-4C97-A15B-E351CCA36094}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{82D2F316-2714-4C97-A15B-E351CCA36094}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{82D2F316-2714-4C97-A15B-E351CCA36094}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

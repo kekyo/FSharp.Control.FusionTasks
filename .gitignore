@@ -233,3 +233,7 @@ _Pvt_Extensions
 .fake/
 
 .nuget/
+
+.idea/
+
+artifacts/

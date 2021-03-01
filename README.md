@@ -2,17 +2,10 @@
 ![FusionTasks](https://raw.githubusercontent.com/kekyo/FSharp.Control.FusionTasks/master/Images/FSharp.Control.FusionTasks.128.png)
 
 ## Status
-| | Current |
-|:---|:--:|
-| NuGet Package (F# 4.5) | [![NuGet FusionTasks (F# 4.5)](https://img.shields.io/nuget/v/FSharp.Control.FusionTasks.svg?style=flat)](https://www.nuget.org/packages/FSharp.Control.FusionTasks) |
-| (Older below, archived) | ---
-| NuGet Package (F# 4.1) | [![NuGet FusionTasks (F# 4.1)](https://img.shields.io/nuget/v/FSharp.Control.FusionTasks.FS41.svg?style=flat)](https://www.nuget.org/packages/FSharp.Control.FusionTasks.FS41) |
-| NuGet Package (F# 4.0) | [![NuGet FusionTasks (F# 4.0)](https://img.shields.io/nuget/v/FSharp.Control.FusionTasks.FS40.svg?style=flat)](https://www.nuget.org/packages/FSharp.Control.FusionTasks.FS40) |
-| NuGet Package (F# 3.1) | [![NuGet FusionTasks (F# 3.1)](https://img.shields.io/nuget/v/FSharp.Control.FusionTasks.FS31.svg?style=flat)](https://www.nuget.org/packages/FSharp.Control.FusionTasks.FS31) |
-| NuGet Package (F# 3.0) | [![NuGet FusionTasks (F# 3.0)](https://img.shields.io/nuget/v/FSharp.Control.FusionTasks.FS30.svg?style=flat)](https://www.nuget.org/packages/FSharp.Control.FusionTasks.FS30) |
-| NuGet Package (F# 2.0) | [![NuGet FusionTasks (F# 2.0)](https://img.shields.io/nuget/v/FSharp.Control.FusionTasks.FS20.svg?style=flat)](https://www.nuget.org/packages/FSharp.Control.FusionTasks.FS20) |
-| Continuous integration | [![AppVeyor FusionTasks](https://ci.appveyor.com/api/projects/status/b0864qshgt6e3f6y?svg=true)](https://ci.appveyor.com/project/kekyo/fsharp-control-fusiontasks) |
-| Gitter | [![Gitter FusionTasks](https://badges.gitter.im/kekyo/FSharp.Control.FusionTasks.svg)](https://gitter.im/kekyo/FSharp.Control.FusionTasks?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) |
+| | main | devel |
+|:---|:--:|:--:|
+| NuGet Package (F# 5.0/4.5) | [![NuGet FusionTasks](https://img.shields.io/nuget/v/FSharp.Control.FusionTasks.svg?style=flat)](https://www.nuget.org/packages/FSharp.Control.FusionTasks) | |
+| Continuous integration | [![RelaxVersioner CI build (main)](https://github.com/kekyo/FSharp.Control.FusionTasks/workflows/.NET/badge.svg?branch=main)](https://github.com/kekyo/FSharp.Control.FusionTasks/actions) | [![RelaxVersioner CI build (main)](https://github.com/kekyo/FSharp.Control.FusionTasks/workflows/.NET/badge.svg?branch=devel)](https://github.com/kekyo/FSharp.Control.FusionTasks/actions) |
 
 ## What is this?
 * F# Async workflow <--> .NET Task/ValueTask easy seamless interoperability library.
@@ -58,14 +51,15 @@ public async Task AsyncTest(FSharpAsync<int> asyncIntComp)
 
 ## Benefits
 * Easy interoperability, combination and relation standard .NET OSS packages using Task/ValueTask and F#'s Async.
-* F# 4.5 with .NET Framework 4.5 (or higher), .NET Core 2.0 and .NET Standard 1.6/2.0 (or higher).
+* F# 5.0/4.5 with .NET 5, .NET Core 3.0/2.0 (or higher), .NET Standard 1.6/2.0 and .NET Framework 4.5/4.6.1/4.8.
 * Ready to LINQPad 5.
 
 ## Environments
-* .NET Framework 4.5 or higher
-* .NET Core 2.0 or higher
-* .NET Standard 1.6/2.0 or higher
-* F# 4.5 or higher
+* F# 5.0/4.5
+* .NET 5
+* .NET Core 3.0/2.0 or higher
+* .NET Standard 1.6/2.0/2.1
+* .NET Framework 4.5/4.6.1/4.8
 
 ## How to use
 * Search NuGet package and install "FSharp.Control.FusionTasks".
@@ -224,10 +218,13 @@ asyncSequenceData.AsTask().Dump()
  Improvements more easier/effective interfaces.
 
 ## License
-* Copyright (c) 2016-2018 Kouji Matsui (@kozy_kekyo)
+* Copyright (c) 2016-2021 Kouji Matsui (@kozy_kekyo)
 * Under Apache v2 http://www.apache.org/licenses/LICENSE-2.0
 
 ## History
+* 2.1.0:
+  * Added .NET 5, .NET Core 3 and .NET Framework 4.8 assemblies.
+  * Fixed capturing synchronization context at the asynchronous continuations.
 * 2.0.2:
   * Fixed add xml comments into package.
 * 2.0.1:

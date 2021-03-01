@@ -1,34 +1,42 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp2.0</TargetFrameworks>
-    <Version>2.0.0</Version>
+    <TargetFrameworks>net48;netcoreapp2.1;netcoreapp3.1;net5.0-windows</TargetFrameworks>
+    <DebugType>portable</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <CheckEolTargetFramework>false</CheckEolTargetFramework>
+    <Deterministic>true</Deterministic>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <NoWarn>988</NoWarn>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)'=='Debug'">
-    <DefineConstants>TRACE;DEBUG;FS45NETCore20;NETCOREAPP2_0</DefineConstants>
-  </PropertyGroup>
+  <ItemGroup Condition="('$(TargetFramework)' == 'net45') or ('$(TargetFramework)' == 'netstandard1.6')">
+    <PackageReference Update="FSharp.Core" Version="4.5.0" />
+  </ItemGroup>
 
-  <PropertyGroup Condition="'$(Configuration)'=='Release'">
-    <DefineConstants>TRACE;FS45NETCore20;NETCOREAPP2_0</DefineConstants>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <Compile Include="AsyncExtensionsTests.fs" />
+  <ItemGroup Condition="('$(TargetFramework)' != 'net45') and ('$(TargetFramework)' != 'netstandard1.6')">
+    <PackageReference Update="FSharp.Core" Version="5.0.1" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Update="FSharp.Core" Version="[4.5.0,)" />
-    <PackageReference Update="System.ValueTuple" Version="[4.5.0,)" />
-    <PackageReference Include="System.Threading.Tasks.Extensions" Version="[4.5.1,)" />
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.0" PrivateAssets="All" />
+    <PackageReference Update="System.ValueTuple" Version="4.5.0" />
+    <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.4" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.8.0" />
-    <PackageReference Include="NUnit" Version="[3.10.1,)" />
-    <PackageReference Include="NUnit3TestAdapter" Version="[3.10.0,)" />
+    <PackageReference Include="NUnit" Version="3.13.1" />
+    <PackageReference Include="NUnit3TestAdapter" Version="3.17.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\FSharp.Control.FusionTasks\FSharp.Control.FusionTasks.fsproj" />
+    <ProjectReference Include="..\ThreadBoundSynchronizationContext\ThreadBoundSynchronizationContext.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="AsyncExtensionsTests.fs" />
   </ItemGroup>
 
 </Project>

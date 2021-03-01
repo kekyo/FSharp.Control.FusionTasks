@@ -1,7 +1,7 @@
 ﻿/////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // FSharp.Control.FusionTasks - F# Async workflow <--> .NET Task easy seamless interoperability library.
-// Copyright (c) 2016-2018 Kouji Matsui (@kozy_kekyo)
+// Copyright (c) 2016-2021 Kouji Matsui (@kozy_kekyo, @kekyo2)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,12 +22,7 @@ namespace Microsoft.FSharp.Control
 open System
 open System.Threading
 open System.Threading.Tasks
-
-#if PCL47
-open Microsoft.Runtime.CompilerServices
-#else
 open System.Runtime.CompilerServices
-#endif
 
 // Provide Awaitable/Awaiter on custom codes:
 //   PCL's Awaitable/Awaiter on "Microsoft.Runtime.CompilerServices",
@@ -114,7 +109,6 @@ type ConfiguredTaskAsyncAwaitable<'T> internal (cta: ConfiguredTaskAwaitable<'T>
 
     member __.GetAwaiter() = ConfiguredTaskAsyncAwaiter<'T>(cta.GetAwaiter())
 
-#if NET45 || PCL7 || PCL78 || PCL259 || NETSTANDARD1_6 || NETSTANDARD2_0 || NETCOREAPP2_0
 ///////////////////////////////////////////////////////////////////////////////////
 // ConfiguredValueTaskAsyncAwaiter.
 
@@ -161,4 +155,3 @@ type ConfiguredValueTaskAsyncAwaiter<'T> internal (ctacta: ConfiguredValueTaskAw
 type ConfiguredValueTaskAsyncAwaitable<'T> internal (cta: ConfiguredValueTaskAwaitable<'T>) =
 
     member __.GetAwaiter() = ConfiguredValueTaskAsyncAwaiter<'T>(cta.GetAwaiter())
-#endif
