@@ -3,7 +3,7 @@
 
 ## Status
 | | main | devel |
-|:---|:--:|
+|:---|:--:|:--:|
 | NuGet Package (F# 5.0/4.5) | [![NuGet FusionTasks](https://img.shields.io/nuget/v/FSharp.Control.FusionTasks.svg?style=flat)](https://www.nuget.org/packages/FSharp.Control.FusionTasks) | |
 | Continuous integration | [![RelaxVersioner CI build (main)](https://github.com/kekyo/FSharp.Control.FusionTasks/workflows/.NET/badge.svg?branch=main)](https://github.com/kekyo/FSharp.Control.FusionTasks/actions) | [![RelaxVersioner CI build (main)](https://github.com/kekyo/FSharp.Control.FusionTasks/workflows/.NET/badge.svg?branch=devel)](https://github.com/kekyo/FSharp.Control.FusionTasks/actions) |
 
