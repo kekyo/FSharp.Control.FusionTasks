@@ -235,3 +235,5 @@ _Pvt_Extensions
 .nuget/
 
 .idea/
+
+artifacts/

@@ -17,7 +17,7 @@
     <Title>FSharp.Control.FusionTasks</Title>
     <Description>F# Async workflow &lt;--&gt; .NET Task easy seamless interoperability library.</Description>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-    <PackageIcon>Epoxy.100.png</PackageIcon>
+    <PackageIcon>FSharp.Control.FusionTasks.100.png</PackageIcon>
     <PackageProjectUrl>https://github.com/kekyo/FSharp.Control.FusionTasks</PackageProjectUrl>
     <Company>Kouji Matsui (@kozy_kekyo, @kekyo2)</Company>
     <Authors>Kouji Matsui (@kozy_kekyo, @kekyo2)</Authors>
@@ -51,6 +51,7 @@
     <Compile Include="Infrastructures.fs" />
     <Compile Include="AsyncExtensions.fs" />
     <Compile Include="TaskExtensions.fs" />
+    <None Include="../Images/FSharp.Control.FusionTasks.100.png" Pack="true" PackagePath="" />
   </ItemGroup>
 
 </Project>

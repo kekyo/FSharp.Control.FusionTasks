@@ -1,7 +1,7 @@
 ﻿/////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // FSharp.Control.FusionTasks - F# Async workflow <--> .NET Task easy seamless interoperability library.
-// Copyright (c) 2016-2018 Kouji Matsui (@kozy_kekyo)
+// Copyright (c) 2016-2021 Kouji Matsui (@kozy_kekyo, @kekyo2)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -48,36 +48,21 @@ module internal Infrastructures =
     with :? OperationCanceledException as e -> e
 
   let asTaskT(async: Async<'T>, ct: CancellationToken option) =
-    let tcs = TaskCompletionSource<'T>()
-    Async.StartWithContinuations(
-      async,
-      tcs.SetResult,
-      tcs.SetException,
-      tcs.SetException, // Derived from original OperationCancelledException
-      safeToken ct)
-    tcs.Task
+    Async.StartImmediateAsTask(async, safeToken ct)
 
   let asValueTask(async: Async<Unit>, ct: CancellationToken option) =
-    let tcs = TaskCompletionSource<Unit>()
-    Async.StartWithContinuations(
-      async,
-      tcs.SetResult,
-      tcs.SetException,
-      tcs.SetException, // Derived from original OperationCancelledException
-      safeToken ct)
-    ValueTask(tcs.Task)
+    ValueTask(Async.StartImmediateAsTask(async, safeToken ct))
 
   let asValueTaskT(async: Async<'T>, ct: CancellationToken option) =
-    let tcs = TaskCompletionSource<'T>()
-    Async.StartWithContinuations(
-      async,
-      tcs.SetResult,
-      tcs.SetException,
-      tcs.SetException, // Derived from original OperationCancelledException
-      safeToken ct)
-    ValueTask<'T>(tcs.Task)
+    ValueTask<'T>(Async.StartImmediateAsTask(async, safeToken ct))
 
+  let getScheduler() =
+    match SynchronizationContext.Current with
+    | null -> TaskScheduler.Current
+    | _ -> TaskScheduler.FromCurrentSynchronizationContext()
+  
   let asAsync(task: Task, ct: CancellationToken option) =
+    let scheduler = getScheduler()
     Async.FromContinuations(
       fun (completed, caught, canceled) ->
         task.ContinueWith(
@@ -86,10 +71,13 @@ module internal Infrastructures =
             | IsFaulted exn -> caught(exn)
             | IsCanceled -> canceled(createCanceledException ct) // TODO: how to extract implicit caught exceptions from task?
             | IsCompleted -> completed(())),
-          safeToken ct)
+            safeToken ct,
+            TaskContinuationOptions.AttachedToParent,
+            scheduler)
         |> ignore)
 
   let asAsyncT(task: Task<'T>, ct: CancellationToken option) =
+    let scheduler = getScheduler()
     Async.FromContinuations(
       fun (completed, caught, canceled) ->
         task.ContinueWith(
@@ -98,10 +86,13 @@ module internal Infrastructures =
             | IsFaulted exn -> caught(exn)
             | IsCanceled -> canceled(createCanceledException ct) // TODO: how to extract implicit caught exceptions from task?
             | IsCompleted -> completed(task.Result)),
-          safeToken ct)
+            safeToken ct,
+            TaskContinuationOptions.AttachedToParent,
+            scheduler)
         |> ignore)
 
   let asAsyncV(task: ValueTask, ct: CancellationToken option) =
+    let scheduler = getScheduler()
     Async.FromContinuations(
       fun (completed, caught, canceled) ->
         let task = task.AsTask()
@@ -111,10 +102,13 @@ module internal Infrastructures =
             | IsFaulted exn -> caught(exn)
             | IsCanceled -> canceled(createCanceledException ct) // TODO: how to extract implicit caught exceptions from task?
             | IsCompleted -> completed()),
-          safeToken ct)
+            safeToken ct,
+            TaskContinuationOptions.AttachedToParent,
+            scheduler)
         |> ignore)
 
   let asAsyncVT(task: ValueTask<'T>, ct: CancellationToken option) =
+    let scheduler = getScheduler()
     Async.FromContinuations(
       fun (completed, caught, canceled) ->
         let task = task.AsTask()
@@ -124,7 +118,9 @@ module internal Infrastructures =
             | IsFaulted exn -> caught(exn)
             | IsCanceled -> canceled(createCanceledException ct) // TODO: how to extract implicit caught exceptions from task?
             | IsCompleted -> completed(task.Result)),
-          safeToken ct)
+            safeToken ct,
+            TaskContinuationOptions.AttachedToParent,
+            scheduler)
         |> ignore)
 
   let asAsyncCTA(cta: ConfiguredTaskAsyncAwaitable) =

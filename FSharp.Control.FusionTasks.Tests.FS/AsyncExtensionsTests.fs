@@ -1,7 +1,7 @@
 ﻿/////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // FSharp.Control.FusionTasks - F# Async workflow <--> .NET Task easy seamless interoperability library.
-// Copyright (c) 2016-2018 Kouji Matsui (@kozy_kekyo)
+// Copyright (c) 2016-2021 Kouji Matsui (@kozy_kekyo, @kekyo2)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,14 +17,15 @@
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
-// Validate for .NET Core 2.0 (F# 4.5)
-namespace FSharp.Control.FusionTasks.Tests.FS45NETCore20
+namespace FSharp.Control.FusionTasks.Tests
 
 open System
 open System.IO
 open System.Diagnostics
+open System.Threading
 open System.Threading.Tasks
 
+open FSharp.Control.FusionTasks
 open NUnit.Framework
 
 module AsyncExtensions =
@@ -234,3 +235,29 @@ module AsyncExtensions =
       }
 
     computation.AsTask()
+
+  [<Test>]
+  let HoldSynchContextTest() =
+    let id1 = Thread.CurrentThread.ManagedThreadId
+    let context = new ThreadBoundSynchronizationContext()
+    SynchronizationContext.SetSynchronizationContext(context)
+    let computation = async {
+        let idStartImmediately = Thread.CurrentThread.ManagedThreadId
+        Assert.AreEqual(id1, idStartImmediately)
+
+        do! Task.Delay 300 |> Async.AwaitTask
+        let idAwaitTask = Thread.CurrentThread.ManagedThreadId
+        Assert.AreEqual(id1, idAwaitTask)
+
+        do! Task.Delay 300
+        let idAwaited1 = Thread.CurrentThread.ManagedThreadId
+        Assert.AreEqual(id1, idAwaited1)
+
+        do! Task.Delay 300
+        let idAwaited2 = Thread.CurrentThread.ManagedThreadId
+        Assert.AreEqual(id1, idAwaited2)
+        
+        context.Quit()
+      }
+    computation |> Async.StartImmediate
+    context.Run()

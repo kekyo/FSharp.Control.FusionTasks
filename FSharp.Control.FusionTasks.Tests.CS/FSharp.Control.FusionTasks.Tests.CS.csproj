@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net48;netcoreapp2.1;netcoreapp3.1;net5.0</TargetFrameworks>
+    <TargetFrameworks>net48;netcoreapp2.1;netcoreapp3.1;net5.0-windows</TargetFrameworks>
     <DebugType>portable</DebugType>
     <DebugSymbols>true</DebugSymbols>
     <CheckEolTargetFramework>false</CheckEolTargetFramework>
@@ -30,6 +30,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\FSharp.Control.FusionTasks\FSharp.Control.FusionTasks.fsproj" />
+    <ProjectReference Include="..\ThreadBoundSynchronizationContext\ThreadBoundSynchronizationContext.csproj" />
   </ItemGroup>
 
 </Project>

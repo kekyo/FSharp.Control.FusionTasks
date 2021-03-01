@@ -15,4 +15,4 @@ rem WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 rem See the License for the specific language governing permissions and
 rem limitations under the License.
 
-dotnet pack --configuration Release -p:PackageVersion=2.0.2 --output ..
+dotnet pack --configuration Release --output artifacts FSharp.Control.FusionTasks\FSharp.Control.FusionTasks.fsproj
