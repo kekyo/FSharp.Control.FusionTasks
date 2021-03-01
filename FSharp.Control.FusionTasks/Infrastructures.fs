@@ -57,7 +57,6 @@ module internal Infrastructures =
       safeToken ct)
     tcs.Task
 
-#if NET45 || PCL7 || PCL78 || PCL259 || NETSTANDARD1_6 || NETSTANDARD2_0 || NETCOREAPP2_0
   let asValueTask(async: Async<Unit>, ct: CancellationToken option) =
     let tcs = TaskCompletionSource<Unit>()
     Async.StartWithContinuations(
@@ -77,7 +76,6 @@ module internal Infrastructures =
       tcs.SetException, // Derived from original OperationCancelledException
       safeToken ct)
     ValueTask<'T>(tcs.Task)
-#endif
 
   let asAsync(task: Task, ct: CancellationToken option) =
     Async.FromContinuations(
@@ -103,7 +101,6 @@ module internal Infrastructures =
           safeToken ct)
         |> ignore)
 
-#if NET45 || PCL7 || PCL78 || PCL259 || NETSTANDARD1_6 || NETSTANDARD2_0 || NETCOREAPP2_0
   let asAsyncV(task: ValueTask, ct: CancellationToken option) =
     Async.FromContinuations(
       fun (completed, caught, canceled) ->
@@ -129,7 +126,6 @@ module internal Infrastructures =
             | IsCompleted -> completed(task.Result)),
           safeToken ct)
         |> ignore)
-#endif
 
   let asAsyncCTA(cta: ConfiguredTaskAsyncAwaitable) =
     Async.FromContinuations(
@@ -153,7 +149,6 @@ module internal Infrastructures =
             with exn -> caught(exn)))
         |> ignore)
 
-#if NET45 || PCL7 || PCL78 || PCL259 || NETSTANDARD1_6 || NETSTANDARD2_0 || NETCOREAPP2_0
   let asAsyncCVTA(cta: ConfiguredValueTaskAsyncAwaitable) =
     Async.FromContinuations(
       fun (completed, caught, canceled) ->
@@ -173,7 +168,6 @@ module internal Infrastructures =
             try completed(awaiter.GetResult())
             with exn -> caught(exn)))
         |> ignore)
-#endif
 
 ///////////////////////////////////////////////////////////////////////////////////
 

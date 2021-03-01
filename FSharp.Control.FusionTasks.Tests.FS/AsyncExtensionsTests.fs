@@ -17,10 +17,8 @@
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
-#if FS45NETCore20
 // Validate for .NET Core 2.0 (F# 4.5)
 namespace FSharp.Control.FusionTasks.Tests.FS45NETCore20
-#endif
 
 open System
 open System.IO
@@ -100,8 +98,6 @@ module AsyncExtensions =
       Assert.AreEqual(data, results)
     }
     test.AsTask()
-
-#if FS41NET45 || FS4NET45 || FS4PCL259 || FS41NETStandard16 || FS45NETCore20
 
   [<Test>]
   let AsyncBuilderAsAsyncFromValueTaskTest() =
@@ -211,7 +207,6 @@ module AsyncExtensions =
       Assert.AreEqual(data, results)
     }
     test.AsTask()
-#endif
 
   [<Test>]
   let AsyncBuilderWithAsyncAndTaskCombinationTest() =

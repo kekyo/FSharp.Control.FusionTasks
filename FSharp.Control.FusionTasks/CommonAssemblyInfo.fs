@@ -18,14 +18,5 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace global
-    [<assembly: System.Reflection.AssemblyCompany("Kouji Matsui")>]
-    [<assembly: System.Reflection.AssemblyProduct("FSharp.Control.FusionTasks")>]
-    [<assembly: System.Reflection.AssemblyCopyright("Copyright (c) 2016-2018 Kouji Matsui (@kozy_kekyo)")>]
-    [<assembly: System.Reflection.AssemblyTrademark("Kouji Matsui")>]
-#if DEBUG
-    [<assembly: System.Reflection.AssemblyConfiguration("DEBUG")>]
-#else
-    [<assembly: System.Reflection.AssemblyConfiguration("RELEASE")>]
-#endif
     [<assembly: AutoOpen("Microsoft.FSharp.Control")>]
     do()

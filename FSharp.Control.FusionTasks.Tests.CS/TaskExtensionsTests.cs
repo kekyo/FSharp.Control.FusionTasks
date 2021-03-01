@@ -26,10 +26,8 @@ using Microsoft.FSharp.Core;
 using NUnit;
 using NUnit.Framework;
 
-#if FS45NETCore20
 // Validate for .NET Core 2.0 (F# 4.5)
 namespace FSharp.Control.FusionTasks.Tests.FS45NETCore20
-#endif
 {
     [TestFixture]
     public class TaskExtensionsTests
@@ -89,7 +87,6 @@ namespace FSharp.Control.FusionTasks.Tests.FS45NETCore20
             Assert.AreEqual(123, result);
         }
 
-#if FS41NET45 || FS4NET45 || FS4PCL259 || FS41NETStandard16 || FS45NETCore20
         private static ValueTask<int> DelayAndReturnAsyncByValueTask()
         {
             return new ValueTask<int>(DelayAndReturnAsync());
@@ -116,7 +113,6 @@ namespace FSharp.Control.FusionTasks.Tests.FS45NETCore20
             var result = FSharpAsync.RunSynchronously(asy, FSharpOption<int>.None, FSharpOption<CancellationToken>.None);
             Assert.AreEqual(123, result);
         }
-#endif
         #endregion
 
         #region FSharpAsync<'T>.AsTask
@@ -188,7 +184,6 @@ namespace FSharp.Control.FusionTasks.Tests.FS45NETCore20
             Assert.ThrowsAsync<OperationCanceledException>(() => outerTask);
         }
 
-#if FS41NET45 || FS4NET45 || FS4PCL259 || FS41NETStandard16 || FS45NETCore20
         private static ValueTask<int> DelayAndReturnAsyncByValueTask(CancellationToken token)
         {
             return new ValueTask<int>(DelayAndReturnAsync(token));
@@ -219,7 +214,6 @@ namespace FSharp.Control.FusionTasks.Tests.FS45NETCore20
             // Continuation point. (Will raise exception)
             Assert.ThrowsAsync<OperationCanceledException>(() => outerTask);
         }
-#endif
         #endregion
 
         #region FSharpAsync<'T>.GetAwaiter

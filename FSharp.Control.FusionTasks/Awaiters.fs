@@ -22,12 +22,7 @@ namespace Microsoft.FSharp.Control
 open System
 open System.Threading
 open System.Threading.Tasks
-
-#if PCL47
-open Microsoft.Runtime.CompilerServices
-#else
 open System.Runtime.CompilerServices
-#endif
 
 // Provide Awaitable/Awaiter on custom codes:
 //   PCL's Awaitable/Awaiter on "Microsoft.Runtime.CompilerServices",
@@ -114,7 +109,6 @@ type ConfiguredTaskAsyncAwaitable<'T> internal (cta: ConfiguredTaskAwaitable<'T>
 
     member __.GetAwaiter() = ConfiguredTaskAsyncAwaiter<'T>(cta.GetAwaiter())
 
-#if NET45 || PCL7 || PCL78 || PCL259 || NETSTANDARD1_6 || NETSTANDARD2_0 || NETCOREAPP2_0
 ///////////////////////////////////////////////////////////////////////////////////
 // ConfiguredValueTaskAsyncAwaiter.
 
@@ -161,4 +155,3 @@ type ConfiguredValueTaskAsyncAwaiter<'T> internal (ctacta: ConfiguredValueTaskAw
 type ConfiguredValueTaskAsyncAwaitable<'T> internal (cta: ConfiguredValueTaskAwaitable<'T>) =
 
     member __.GetAwaiter() = ConfiguredValueTaskAsyncAwaiter<'T>(cta.GetAwaiter())
-#endif
