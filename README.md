@@ -222,6 +222,8 @@ asyncSequenceData.AsTask().Dump()
 * Under Apache v2 http://www.apache.org/licenses/LICENSE-2.0
 
 ## History
+* 2.1.1:
+  * Downgraded FSharp.Core requirements from 5.0.1 to 5.0.0.
 * 2.1.0:
   * Added .NET 5, .NET Core 3 and .NET Framework 4.8 assemblies.
   * Fixed capturing synchronization context at the asynchronous continuations.
