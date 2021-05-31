@@ -222,6 +222,8 @@ asyncSequenceData.AsTask().Dump()
 * Under Apache v2 http://www.apache.org/licenses/LICENSE-2.0
 
 ## History
+* 2.2.0:
+  * Suppressed Task/ValueTask allocation when they were already completed (#12, @danielmarbach)
 * 2.1.1:
   * Downgraded FSharp.Core requirements from 5.0.1 to 5.0.0.
 * 2.1.0:
