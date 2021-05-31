@@ -42,7 +42,7 @@
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.0" PrivateAssets="All" />
     <PackageReference Update="System.ValueTuple" Version="4.5.0" />
     <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.4" />
-    <PackageReference Include="RelaxVersioner" Version="2.1.0" PrivateAssets="all" />
+    <PackageReference Include="RelaxVersioner" Version="2.3.0" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>

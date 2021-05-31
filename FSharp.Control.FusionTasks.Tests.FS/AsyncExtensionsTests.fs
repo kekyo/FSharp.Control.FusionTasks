@@ -236,6 +236,20 @@ module AsyncExtensions =
 
     computation.AsTask()
 
+  // #11
+  //[<TestCase(true, 111)>]
+  //[<TestCase(false, 222)>]
+  //let AsyncBuilderCompilesIfInTest(flag, expected) =
+  //  let computation = async {
+  //      if flag
+  //      then
+  //        Assert.IsTrue flag
+  //        return ()
+  //      do! Task.Delay 100
+  //      Assert.IsFalse flag
+  //    }
+  //  computation |> Async.RunSynchronously
+
   [<Test>]
   let HoldSynchContextTest() =
     let id1 = Thread.CurrentThread.ManagedThreadId
