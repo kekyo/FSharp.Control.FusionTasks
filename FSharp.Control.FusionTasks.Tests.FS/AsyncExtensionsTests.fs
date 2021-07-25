@@ -275,3 +275,17 @@ module AsyncExtensions =
       }
     computation |> Async.StartImmediate
     context.Run()
+
+  [<Test>]
+  let AsyncEnumerableIterationTest() =
+    let computation = async {
+      let values = [ 2; 5; 3; 7; 1 ]
+      let results = new System.Collections.Generic.List<int>()
+      let delay = TimeSpan.FromMilliseconds 200.0
+      for value in values.DelayAsync(fun v -> v, delay) do
+        results.Add value
+        //do! Async.Sleep 100
+      Assert.AreEqual(values, results)
+    }
+
+    computation.AsTask()
