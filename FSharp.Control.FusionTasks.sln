@@ -26,7 +26,7 @@ Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "FSharp.Control.FusionTasks.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FSharp.Control.FusionTasks.Tests.CS", "FSharp.Control.FusionTasks.Tests.CS\FSharp.Control.FusionTasks.Tests.CS.csproj", "{46EC46A3-A601-4B04-9CB0-0113D01E8F8A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ThreadBoundSynchronizationContext", "ThreadBoundSynchronizationContext\ThreadBoundSynchronizationContext.csproj", "{82D2F316-2714-4C97-A15B-E351CCA36094}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FSharp.Control.FusionTasks.Tests.Ulitilites", "FSharp.Control.FusionTasks.Tests.Ulitilites\FSharp.Control.FusionTasks.Tests.Ulitilites.csproj", "{38570AC1-91BF-47BE-A153-50124376646C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -46,10 +46,10 @@ Global
 		{46EC46A3-A601-4B04-9CB0-0113D01E8F8A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{46EC46A3-A601-4B04-9CB0-0113D01E8F8A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{46EC46A3-A601-4B04-9CB0-0113D01E8F8A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{82D2F316-2714-4C97-A15B-E351CCA36094}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{82D2F316-2714-4C97-A15B-E351CCA36094}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{82D2F316-2714-4C97-A15B-E351CCA36094}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{82D2F316-2714-4C97-A15B-E351CCA36094}.Release|Any CPU.Build.0 = Release|Any CPU
+		{38570AC1-91BF-47BE-A153-50124376646C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{38570AC1-91BF-47BE-A153-50124376646C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{38570AC1-91BF-47BE-A153-50124376646C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{38570AC1-91BF-47BE-A153-50124376646C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
