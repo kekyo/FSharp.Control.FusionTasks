@@ -20,9 +20,9 @@
 namespace Microsoft.FSharp.Control
 
 open System
-open System.Runtime.CompilerServices
 open System.Threading
 open System.Threading.Tasks
+open System.Collections.Generic
 
 ///////////////////////////////////////////////////////////////////////////////////
 // Internal implementations.
@@ -39,14 +39,6 @@ module internal Infrastructures =
     | Some token -> token
     | None -> Async.DefaultCancellationToken
 
-  let createCanceledException(token: CancellationToken option) =
-    // TODO: Constructed stack traces. require?
-    try
-      match token with
-      | Some t -> new OperationCanceledException(t) |> raise
-      | None -> new OperationCanceledException() |> raise
-    with :? OperationCanceledException as e -> e
-
   let asTaskT(async: Async<'T>, ct: CancellationToken option) =
     Async.StartImmediateAsTask(async, safeToken ct)
 
@@ -56,20 +48,15 @@ module internal Infrastructures =
   let asValueTaskT(async: Async<'T>, ct: CancellationToken option) =
     ValueTask<'T>(Async.StartImmediateAsTask(async, safeToken ct))
 
-  let getScheduler() =
-    match SynchronizationContext.Current with
-    | null -> TaskScheduler.Current
-    | _ -> TaskScheduler.FromCurrentSynchronizationContext()
-  
   let asAsync(task: Task, ct: CancellationToken option) =
-    let scheduler = getScheduler()
+    let scheduler = Utilities.getScheduler()
     Async.FromContinuations(
       fun (completed, caught, canceled) ->
         task.ContinueWith(
           new Action<Task>(fun _ ->
             match task with  
             | IsFaulted exn -> caught(exn)
-            | IsCanceled -> canceled(createCanceledException ct) // TODO: how to extract implicit caught exceptions from task?
+            | IsCanceled -> canceled(Utilities.createCanceledException ct) // TODO: how to extract implicit caught exceptions from task?
             | IsCompleted -> completed(())),
             safeToken ct,
             TaskContinuationOptions.AttachedToParent,
@@ -77,14 +64,14 @@ module internal Infrastructures =
         |> ignore)
 
   let asAsyncT(task: Task<'T>, ct: CancellationToken option) =
-    let scheduler = getScheduler()
+    let scheduler = Utilities.getScheduler()
     Async.FromContinuations(
       fun (completed, caught, canceled) ->
         task.ContinueWith(
           new Action<Task<'T>>(fun _ ->
             match task with  
             | IsFaulted exn -> caught(exn)
-            | IsCanceled -> canceled(createCanceledException ct) // TODO: how to extract implicit caught exceptions from task?
+            | IsCanceled -> canceled(Utilities.createCanceledException ct) // TODO: how to extract implicit caught exceptions from task?
             | IsCompleted -> completed(task.Result)),
             safeToken ct,
             TaskContinuationOptions.AttachedToParent,
@@ -92,7 +79,7 @@ module internal Infrastructures =
         |> ignore)
 
   let asAsyncV(task: ValueTask, ct: CancellationToken option) =
-    let scheduler = getScheduler()
+    let scheduler = Utilities.getScheduler()
     Async.FromContinuations(
       fun (completed, caught, canceled) ->
         match task.IsCompletedSuccessfully with
@@ -103,7 +90,7 @@ module internal Infrastructures =
             new Action<Task>(fun _ ->
               match task with  
               | IsFaulted exn -> caught(exn)
-              | IsCanceled -> canceled(createCanceledException ct) // TODO: how to extract implicit caught exceptions from task?
+              | IsCanceled -> canceled(Utilities.createCanceledException ct) // TODO: how to extract implicit caught exceptions from task?
               | IsCompleted -> completed()),
               safeToken ct,
               TaskContinuationOptions.AttachedToParent,
@@ -111,7 +98,7 @@ module internal Infrastructures =
           |> ignore)
 
   let asAsyncVT(task: ValueTask<'T>, ct: CancellationToken option) =
-    let scheduler = getScheduler()
+    let scheduler = Utilities.getScheduler()
     Async.FromContinuations(
       fun (completed, caught, canceled) ->
         match task.IsCompletedSuccessfully with
@@ -122,7 +109,7 @@ module internal Infrastructures =
             new Action<Task<'T>>(fun _ ->
               match task with  
               | IsFaulted exn -> caught(exn)
-              | IsCanceled -> canceled(createCanceledException ct) // TODO: how to extract implicit caught exceptions from task?
+              | IsCanceled -> canceled(Utilities.createCanceledException ct) // TODO: how to extract implicit caught exceptions from task?
               | IsCompleted -> completed(task.Result)),
               safeToken ct,
               TaskContinuationOptions.AttachedToParent,
@@ -131,7 +118,7 @@ module internal Infrastructures =
 
   let asAsyncCTA(cta: ConfiguredTaskAsyncAwaitable) =
     Async.FromContinuations(
-      fun (completed, caught, canceled) ->
+      fun (completed, caught, _) ->
         let awaiter = cta.GetAwaiter()
         awaiter.OnCompleted(
           new Action(fun _ ->
@@ -143,7 +130,7 @@ module internal Infrastructures =
 
   let asAsyncCTAT(cta: ConfiguredTaskAsyncAwaitable<'T>) =
     Async.FromContinuations(
-      fun (completed, caught, canceled) ->
+      fun (completed, caught, _) ->
         let awaiter = cta.GetAwaiter()
         awaiter.OnCompleted(
           new Action(fun _ ->
@@ -153,7 +140,7 @@ module internal Infrastructures =
 
   let asAsyncCVTA(cta: ConfiguredValueTaskAsyncAwaitable) =
     Async.FromContinuations(
-      fun (completed, caught, canceled) ->
+      fun (completed, caught, _) ->
         let awaiter = cta.GetAwaiter()
         awaiter.OnCompleted(
           new Action(fun _ ->
@@ -163,7 +150,7 @@ module internal Infrastructures =
 
   let asAsyncCVTAT(cta: ConfiguredValueTaskAsyncAwaitable<'T>) =
     Async.FromContinuations(
-      fun (completed, caught, canceled) ->
+      fun (completed, caught, _) ->
         let awaiter = cta.GetAwaiter()
         awaiter.OnCompleted(
           new Action(fun _ ->
@@ -171,63 +158,97 @@ module internal Infrastructures =
             with exn -> caught(exn)))
         |> ignore)
 
-///////////////////////////////////////////////////////////////////////////////////
+#if !NET45 && !NETSTANDARD1_6 && !NETCOREAPP2_0
+  let asAsyncE(enumerable: IAsyncEnumerable<'T>, body: 'T -> Async<'U>, ct: CancellationToken option) =
 
-/// <summary>
-/// Delegation F#'s async continuation.
-/// </summary>
-/// <description>
-/// Simulate TaskCompletionSource&lt;'T&gt; for F#'s Async&lt;'T&gt;.
-/// </description>
-/// <typeparam name="'T">Computation result type</typeparam> 
-[<Sealed; NoEquality; NoComparison; AutoSerializable(false)>]
-type AsyncCompletionSource<'T> =
+    let checkCancellation() =
+      if ct.IsSome then
+        ct.Value.ThrowIfCancellationRequested()
 
-  [<DefaultValue>]
-  val mutable private _completed : 'T -> unit
-  [<DefaultValue>]
-  val mutable private _caught : exn -> unit
-  [<DefaultValue>]
-  val mutable private _canceled : OperationCanceledException -> unit
+    // Check early cancellation.
+    checkCancellation()
 
-  val private _async : Async<'T>
+    // Get asynchronous enumerator.
+    let enumerator = enumerable.GetAsyncEnumerator(Utilities.unwrap ct)
 
-  /// <summary>
-  /// Constructor.
-  /// </summary>
-  new () as this = {
-    _async = Async.FromContinuations<'T>(fun (completed, caught, canceled) ->
-      this._completed <- completed
-      this._caught <- caught
-      this._canceled <- canceled)
-  }
+    // Wrap asynchronous monad.
+    Async.FromContinuations(
+      fun (completed, caught, canceled) ->
+        let mutable finalValue = Unchecked.defaultof<'U>
 
-  /// <summary>
-  /// Target Async&lt;'T&gt; instance.
-  /// </summary>
-  member this.Async = this._async
+        let rec whileLoop() =
 
-  /// <summary>
-  /// Set result value and continue continuation.
-  /// </summary>
-  /// <param name="value">Result value</param>
-  member this.SetResult value = this._completed value
+          // Check early cancellation.
+          checkCancellation()
+          
+          // Finally handlers.
+          let finallyContinuation chainedContinuation =
+            try
+              let disposeAwaiter = enumerator.DisposeAsync().GetAwaiter()
+              if disposeAwaiter.IsCompleted then
+                disposeAwaiter.GetResult()
+                chainedContinuation()
+              else
+                disposeAwaiter.OnCompleted(
+                  fun () ->
+                    try
+                      disposeAwaiter.GetResult()
+                      chainedContinuation()
+                    with
+                    | exn -> caught exn)
+            with
+            | exn -> caught exn
+          let completedContinuation value =
+            finallyContinuation (fun () -> completed value)
+          let caughtContinuation exn =
+            finallyContinuation (fun () -> caught exn)
+          let canceledContinuation exn =
+            finallyContinuation (fun () -> canceled exn)
 
-  /// <summary>
-  /// Set exception and continue continuation.
-  /// </summary>
-  /// <param name="exn">Exception instance</param>
-  member this.SetException exn = this._caught exn
+          // (Recursive) Loop main:
+          try
+            let moveNextAwaiter = enumerator.MoveNextAsync().GetAwaiter()
 
-  /// <summary>
-  /// Cancel async computation.
-  /// </summary>
-  member this.SetCanceled() =
-    this._canceled(Infrastructures.createCanceledException(None))
+            // Will get result and invoke continuation.
+            let getResultContinuation() =
+              // Got next (asynchronous) value?
+              let moveNextResult = moveNextAwaiter.GetResult()
+              if moveNextResult then
+                // Got Async<'U>
+                let resultAsync = body enumerator.Current
+                // Will get value asynchronously.
+                Async.StartWithContinuations(
+                  resultAsync,
+                  // Got:
+                  (fun result ->
+                    // Save last value
+                    finalValue <- result
+                    // NOTE: Maybe will not cause stack overflow, because async workflow will be scattered recursive calls...
+                    whileLoop()),
+                  // Caught asynchronous monadic exception.
+                  caughtContinuation,
+                  // Caught asynchronous monadic cancel exception.
+                  canceledContinuation)
+              // Didn't get next value (= finished)
+              else
+                // Completed totally asynchronous sequence.
+                completedContinuation finalValue
 
-  /// <summary>
-  /// Cancel async computation.
-  /// </summary>
-  /// <param name="token">CancellationToken</param>
-  member this.SetCanceled token =
-    this._canceled(Infrastructures.createCanceledException(Some token))
+            // Already completed synchronously MoveNextAsync() ?
+            if moveNextAwaiter.IsCompleted then
+              // Get result synchronously.
+              getResultContinuation()
+            else
+              // Delay getting result.
+              moveNextAwaiter.OnCompleted(
+                fun () ->
+                  try
+                    getResultContinuation()
+                  with
+                  | exn -> caughtContinuation exn)
+          with
+          | exn -> caughtContinuation exn
+
+        // Start simulated asynchronous loop.
+        whileLoop())
+#endif

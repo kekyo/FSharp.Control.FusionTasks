@@ -21,7 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 
-namespace FSharp.Control.FusionTasks
+namespace FSharp.Control.FusionTasks.Tests
 {
     public sealed class ThreadBoundSynchronizationContext :
         SynchronizationContext
