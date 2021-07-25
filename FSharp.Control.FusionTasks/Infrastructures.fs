@@ -20,6 +20,7 @@
 namespace Microsoft.FSharp.Control
 
 open System
+open System.Collections.Generic
 open System.Runtime.CompilerServices
 open System.Threading
 open System.Threading.Tasks
@@ -170,6 +171,30 @@ module internal Infrastructures =
             try completed(awaiter.GetResult())
             with exn -> caught(exn)))
         |> ignore)
+
+#if !NET45 && !NETSTANDARD1_6 && !NETCOREAPP2_0
+  let asAsyncE(enumerable: IAsyncEnumerable<'T>, body: 'T -> Async<'U>, ct: CancellationToken option) =
+    let enumerator = enumerable.GetAsyncEnumerator()
+    async {
+      try
+        let mutable finalValue = Option<'U>.None
+        let mutable cont = true
+        while cont do
+          let! next = asAsyncVT(enumerator.MoveNextAsync(), ct)
+          if next then
+            let! result = body enumerator.Current
+            finalValue <- Some result
+          else
+            cont <- false
+        return
+          match finalValue with
+          | Some value -> value
+          | None -> Unchecked.defaultof<'U>
+      finally
+        // TODO: Synchronous blocking...
+        enumerator.DisposeAsync().GetAwaiter().GetResult()
+    }
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////////
 
