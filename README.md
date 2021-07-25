@@ -144,6 +144,21 @@ let asyncCalculate() =
   acs.Async
 ```
 
+### Basic .NET standard asynchronous sequence IAsyncEnumerable&lt;T&gt;:
+
+``` fsharp
+let asyncTest = async {
+  // FusionTasks directly interpreted System.Collection.Generic.IAsyncEnumerable<'T> in
+  // F# async-workflow for expression.
+  for value in FooBarAccessor.EnumerableAsync() do
+    // Totally asynchronous operation in each asynchronous iteration:
+    let! result = value |> FooBarCollector.calculate
+    do! output.WriteAsync(result)
+
+  // ... (Continuation is asynchronously behind `for` loop)
+}
+```
+
 ### TIPS: We have to add annotation for arguments if using it async workflow:
 
 ``` fsharp
@@ -222,6 +237,8 @@ asyncSequenceData.AsTask().Dump()
 * Under Apache v2 http://www.apache.org/licenses/LICENSE-2.0
 
 ## History
+* 2.3.0:
+  * Supported .NET asynchronous sequence (`IAsyncEnumerable` and essential types).
 * 2.2.0:
   * Suppressed Task/ValueTask allocation when they were already completed (#12, @danielmarbach)
 * 2.1.1:
