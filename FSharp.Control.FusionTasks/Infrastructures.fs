@@ -160,11 +160,28 @@ module internal Infrastructures =
 
 #if !NET45 && !NETSTANDARD1_6 && !NETCOREAPP2_0
   let asAsyncE(enumerable: IAsyncEnumerable<'T>, body: 'T -> Async<'U>, ct: CancellationToken option) =
+
+    let checkCancellation() =
+      if ct.IsSome then
+        ct.Value.ThrowIfCancellationRequested()
+
+    // Check early cancellation.
+    checkCancellation()
+
+    // Get asynchronous enumerator.
     let enumerator = enumerable.GetAsyncEnumerator(Utilities.unwrap ct)
+
+    // Wrap asynchronous monad.
     Async.FromContinuations(
       fun (completed, caught, canceled) ->
         let mutable finalValue = Unchecked.defaultof<'U>
+
         let rec whileLoop() =
+
+          // Check early cancellation.
+          checkCancellation()
+          
+          // Finally handlers.
           let finallyContinuation chainedContinuation =
             try
               let disposeAwaiter = enumerator.DisposeAsync().GetAwaiter()
@@ -174,31 +191,64 @@ module internal Infrastructures =
               else
                 disposeAwaiter.OnCompleted(
                   fun () ->
-                    disposeAwaiter.GetResult()
-                    chainedContinuation())
+                    try
+                      disposeAwaiter.GetResult()
+                      chainedContinuation()
+                    with
+                    | exn -> caught exn)
             with
             | exn -> caught exn
+          let completedContinuation value =
+            finallyContinuation (fun () -> completed value)
+          let caughtContinuation exn =
+            finallyContinuation (fun () -> caught exn)
+          let canceledContinuation exn =
+            finallyContinuation (fun () -> canceled exn)
+
+          // (Recursive) Loop main:
           try
             let moveNextAwaiter = enumerator.MoveNextAsync().GetAwaiter()
+
+            // Will get result and invoke continuation.
             let getResultContinuation() =
+              // Got next (asynchronous) value?
               let moveNextResult = moveNextAwaiter.GetResult()
               if moveNextResult then
+                // Got Async<'U>
                 let resultAsync = body enumerator.Current
+                // Will get value asynchronously.
                 Async.StartWithContinuations(
                   resultAsync,
+                  // Got:
                   (fun result ->
+                    // Save last value
                     finalValue <- result
-                    // Maybe will not cause stack overflow, because async workflow will be scattered recursive calls...
+                    // NOTE: Maybe will not cause stack overflow, because async workflow will be scattered recursive calls...
                     whileLoop()),
-                  (fun exn -> finallyContinuation(fun () -> caught exn)),
-                  (fun exn -> finallyContinuation(fun () -> canceled exn)))
+                  // Caught asynchronous monadic exception.
+                  caughtContinuation,
+                  // Caught asynchronous monadic cancel exception.
+                  canceledContinuation)
+              // Didn't get next value (= finished)
               else
-                finallyContinuation(fun () -> completed finalValue)
+                // Completed totally asynchronous sequence.
+                completedContinuation finalValue
+
+            // Already completed synchronously MoveNextAsync() ?
             if moveNextAwaiter.IsCompleted then
+              // Get result synchronously.
               getResultContinuation()
             else
-              moveNextAwaiter.OnCompleted(new Action(getResultContinuation))
+              // Delay getting result.
+              moveNextAwaiter.OnCompleted(
+                fun () ->
+                  try
+                    getResultContinuation()
+                  with
+                  | exn -> caughtContinuation exn)
           with
-          | exn -> finallyContinuation(fun () -> caught exn)
+          | exn -> caughtContinuation exn
+
+        // Start simulated asynchronous loop.
         whileLoop())
 #endif

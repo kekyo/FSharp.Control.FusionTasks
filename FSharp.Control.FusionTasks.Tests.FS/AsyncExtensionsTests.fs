@@ -25,10 +25,12 @@ open System.Diagnostics
 open System.Threading
 open System.Threading.Tasks
 
-open FSharp.Control.FusionTasks
 open NUnit.Framework
 
 module AsyncExtensions =
+
+  ////////////////////////////////////////////////////////////////////////
+  // Basis
 
   [<Test>]
   let AsyncBuilderAsAsyncFromTaskTest() =
@@ -250,6 +252,9 @@ module AsyncExtensions =
   //    }
   //  computation |> Async.RunSynchronously
 
+  ////////////////////////////////////////////////////////////////////////
+  // SynchronizationContext
+
   [<Test>]
   let HoldSynchContextTest() =
     let id1 = Thread.CurrentThread.ManagedThreadId
@@ -276,15 +281,295 @@ module AsyncExtensions =
     computation |> Async.StartImmediate
     context.Run()
 
+  ////////////////////////////////////////////////////////////////////////
+  // IAsyncEnumerable
+
   [<Test>]
   let AsyncEnumerableIterationTest() =
     let computation = async {
       let values = [ 2; 5; 3; 7; 1 ]
       let results = new System.Collections.Generic.List<int>()
       let delay = TimeSpan.FromMilliseconds 200.0
-      for value in values.DelayAsync((fun v -> v), delay) do
+      for value in values.DelayEachAsync(delay) do
         results.Add value
-        do! Async.Sleep 100
+        do! Async.Sleep delay
       Assert.AreEqual(values, results)
+    }
+    computation.AsTask()
+
+  [<Test>]
+  let AsyncEnumerableIterationNoDelayingBodyTest() =
+    let computation = async {
+      let values = [ 2; 5; 3; 7; 1 ]
+      let results = new System.Collections.Generic.List<int>()
+      let delay = TimeSpan.FromMilliseconds 200.0
+      for value in values.DelayEachAsync(delay) do
+        results.Add value
+      Assert.AreEqual(values, results)
+    }
+    computation.AsTask()
+    
+  [<Test>]
+  let AsyncEnumerableSynchIterationTest() =
+    let computation = async {
+      let values = [ 2; 5; 3; 7; 1 ]
+      let results = new System.Collections.Generic.List<int>()
+      let delay = TimeSpan.FromMilliseconds 200.0
+      for value in values.AsAsyncEnumerable() do
+        results.Add value
+        do! Async.Sleep delay
+      Assert.AreEqual(values, results)
+    }
+    computation.AsTask()
+
+  [<Test>]
+  let AsyncEnumerableSynchIterationNoDelayingBodyTest() =
+    let computation = async {
+      let values = [ 2; 5; 3; 7; 1 ]
+      let results = new System.Collections.Generic.List<int>()
+      let delay = TimeSpan.FromMilliseconds 200.0
+      for value in values.AsAsyncEnumerable() do
+        results.Add value
+      Assert.AreEqual(values, results)
+    }
+    computation.AsTask()
+
+  [<Test>]
+  let AsyncEnumerableIterationThrowingTest() =
+    let computation = async {
+      let values = [ 2; 5; 3; 7; 1 ]
+      let results = new System.Collections.Generic.List<int>()
+      let delay = TimeSpan.FromMilliseconds 200.0
+      let exn = new Exception()
+      let mutable index = 0
+      try
+        for value in values.DelayEachAsync(delay) do
+          results.Add value
+          index <- index + 1
+          if index >= 3 then
+            raise exn
+          do! Async.Sleep delay
+        Assert.Fail()
+      with
+      | exn2 ->
+        Assert.AreSame(exn, exn2)
+        Assert.AreEqual(values |> Seq.take 3, results)
+    }
+    computation.AsTask()
+
+  [<Test>]
+  let AsyncEnumerableIterationThrowingNoDelayingBodyTest() =
+    let computation = async {
+      let values = [ 2; 5; 3; 7; 1 ]
+      let results = new System.Collections.Generic.List<int>()
+      let delay = TimeSpan.FromMilliseconds 200.0
+      let exn = new Exception()
+      let mutable index = 0
+      try
+        for value in values.DelayEachAsync(delay) do
+          results.Add value
+          index <- index + 1
+          if index >= 3 then
+            raise exn
+        Assert.Fail()
+      with
+      | exn2 ->
+        Assert.AreSame(exn, exn2)
+        Assert.AreEqual(values |> Seq.take 3, results)
+    }
+    computation.AsTask()
+
+  [<Test>]
+  let AsyncEnumerableSynchIterationThrowingTest() =
+    let computation = async {
+      let values = [ 2; 5; 3; 7; 1 ]
+      let results = new System.Collections.Generic.List<int>()
+      let delay = TimeSpan.FromMilliseconds 200.0
+      let exn = new Exception()
+      let mutable index = 0
+      try
+        for value in values.AsAsyncEnumerable() do
+          results.Add value
+          index <- index + 1
+          if index >= 3 then
+            raise exn
+          do! Async.Sleep delay
+        Assert.Fail()
+      with
+      | exn2 ->
+        Assert.AreSame(exn, exn2)
+        Assert.AreEqual(values |> Seq.take 3, results)
+    }
+    computation.AsTask()
+
+  [<Test>]
+  let AsyncEnumerableSynchIterationThrowingNoDelayingBodyTest() =
+    let computation = async {
+      let values = [ 2; 5; 3; 7; 1 ]
+      let results = new System.Collections.Generic.List<int>()
+      let delay = TimeSpan.FromMilliseconds 200.0
+      let exn = new Exception()
+      let mutable index = 0
+      try
+        for value in values.AsAsyncEnumerable() do
+          results.Add value
+          index <- index + 1
+          if index >= 3 then
+            raise exn
+        Assert.Fail()
+      with
+      | exn2 ->
+        Assert.AreSame(exn, exn2)
+        Assert.AreEqual(values |> Seq.take 3, results)
+    }
+    computation.AsTask()
+
+  [<Test>]
+  let AsyncEnumerableIterationThrowingBeforeTest() =
+    let computation = async {
+      let values = [ 2; 5; 3; 7; 1 ]
+      let results = new System.Collections.Generic.List<int>()
+      let delay = TimeSpan.FromMilliseconds 200.0
+      try
+        for value in values.WillThrowBefore() do
+          results.Add value
+          do! Async.Sleep delay
+        Assert.Fail()
+      with
+      | exn ->
+        Assert.AreEqual("WillThrowBefore", exn.Message)
+        Assert.AreEqual(0, results.Count)
+    }
+    computation.AsTask()
+
+  [<Test>]
+  let AsyncEnumerableIterationThrowingAfterTest() =
+    let computation = async {
+      let values = [ 2; 5; 3; 7; 1 ]
+      let results = new System.Collections.Generic.List<int>()
+      let delay = TimeSpan.FromMilliseconds 200.0
+      try
+        for value in values.WillThrowAfter() do
+          results.Add value
+          do! Async.Sleep delay
+        Assert.Fail()
+      with
+      | exn ->
+        Assert.AreEqual("WillThrowAfter", exn.Message)
+        Assert.AreEqual(values, results)
+    }
+    computation.AsTask()
+    
+  [<Test>]
+  let AsyncEnumerableIterationThrowingInterBeforeTest() =
+    let computation = async {
+      let values = [ 2; 5; 3; 7; 1 ]
+      let results = new System.Collections.Generic.List<int>()
+      let delay = TimeSpan.FromMilliseconds 200.0
+      try
+        for value in values.WillThrowInterBefore() do
+          results.Add value
+          do! Async.Sleep delay
+        Assert.Fail()
+      with
+      | exn ->
+        Assert.AreEqual("WillThrowInterBefore", exn.Message)
+        Assert.AreEqual(0, results.Count)
+    }
+    computation.AsTask()
+
+  [<Test>]
+  let AsyncEnumerableIterationThrowingInterAfterTest() =
+    let computation = async {
+      let values = [ 2; 5; 3; 7; 1 ]
+      let results = new System.Collections.Generic.List<int>()
+      let delay = TimeSpan.FromMilliseconds 200.0
+      try
+        for value in values.WillThrowInterAfter() do
+          results.Add value
+          do! Async.Sleep delay
+        Assert.Fail()
+      with
+      | exn ->
+        Assert.AreEqual("WillThrowInterAfter", exn.Message)
+        Assert.AreEqual(values |> Seq.take 1, results)
+    }
+    computation.AsTask()
+    
+  [<Test>]
+  let AsyncEnumerableWillCallAsyncDisposeTest() =
+    let computation = async {
+      let values = [ 2; 5; 3; 7; 1 ]
+      let results = new System.Collections.Generic.List<int>()
+      let delay = TimeSpan.FromMilliseconds 200.0
+      let mutable called = false
+      for value in values.HookAsyncEnumerable(fun () ->
+          called <- true
+          new ValueTask()) do
+        results.Add value
+        do! Async.Sleep delay
+      Assert.IsTrue(called)
+      Assert.AreEqual(values, results)
+    }
+    computation.AsTask()
+
+  [<Test>]
+  let AsyncEnumerableWillDelayCallAsyncDisposeTest() =
+    let computation = async {
+      let values = [ 2; 5; 3; 7; 1 ]
+      let results = new System.Collections.Generic.List<int>()
+      let delay = TimeSpan.FromMilliseconds 200.0
+      let mutable called = false
+      for value in values.HookAsyncEnumerable(fun () ->
+        new ValueTask(
+          Async.StartImmediateAsTask (async {
+            do! Async.Sleep delay
+            called <- true }))) do
+        results.Add value
+        do! Async.Sleep delay
+      Assert.IsTrue(called)
+      Assert.AreEqual(values, results)
+    }
+    computation.AsTask()
+
+  [<Test>]
+  let AsyncEnumerableWillThrowAsyncDisposeTest() =
+    let computation = async {
+      let values = [ 2; 5; 3; 7; 1 ]
+      let results = new System.Collections.Generic.List<int>()
+      let delay = TimeSpan.FromMilliseconds 200.0
+      let exn = new Exception()
+      try
+        for value in values.HookAsyncEnumerable(fun () -> raise exn) do
+          results.Add value
+          do! Async.Sleep delay
+        Assert.Fail()
+      with
+      | exn2 ->
+        Assert.AreSame(exn, exn2)
+        Assert.AreEqual(values, results)
+    }
+    computation.AsTask()
+
+  [<Test>]
+  let AsyncEnumerableWillDelayedThrowAsyncDisposeTest() =
+    let computation = async {
+      let values = [ 2; 5; 3; 7; 1 ]
+      let results = new System.Collections.Generic.List<int>()
+      let delay = TimeSpan.FromMilliseconds 200.0
+      let exn = new Exception()
+      try
+        for value in values.HookAsyncEnumerable(fun () ->
+          new ValueTask(
+            Async.StartImmediateAsTask (async {
+              do! Async.Sleep delay
+              raise exn }))) do
+          results.Add value
+          do! Async.Sleep delay
+        Assert.Fail()
+      with
+      | exn2 ->
+        Assert.AreSame(exn, exn2)
+        Assert.AreEqual(values, results)
     }
     computation.AsTask()
