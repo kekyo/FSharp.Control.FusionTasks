@@ -20,6 +20,7 @@
 namespace Microsoft.FSharp.Control
 
 open System
+open System.Collections.Generic
 open System.Runtime.CompilerServices
 open System.Threading
 open System.Threading.Tasks
@@ -225,7 +226,7 @@ module AsyncExtensions =
     /// <param name="task">.NET ValueTask (expression result)</param>
     /// <returns>F# Async instance.</returns>
     member __.Source(task: ValueTask) =
-       Infrastructures.asAsyncV(task, None)
+      Infrastructures.asAsyncV(task, None)
  
     /// <summary>
     /// Seamless conversion from .NET Task to F# Async in Async workflow.
@@ -242,7 +243,7 @@ module AsyncExtensions =
     /// <param name="task">.NET ValueTask&lt;'T&gt; (expression result)</param>
     /// <returns>F# Async instance.</returns>
     member __.Source(task: ValueTask<'T>) =
-       Infrastructures.asAsyncVT(task, None)
+      Infrastructures.asAsyncVT(task, None)
  
     /// <summary>
     /// Seamless conversion from .NET Task to F# Async in Async workflow.
@@ -259,5 +260,25 @@ module AsyncExtensions =
     /// <typeparam name="'E">The element type of the sequence</typeparam> 
     /// <param name="s">The sequence.</param>
     /// <returns>The sequence.</returns>
-    member __.Source(s: 'R seq) =
+    member __.Source(s: 'E seq) =
       s
+
+#if !NET45 && !NETSTANDARD1_6 && !NETCOREAPP2_0
+    /// <summary>
+    /// Seamless conversion from .NET Async sequence (IAsyncEnumerable&lt;'E&gt;) to F# Async in Async workflow.
+    /// </summary>
+    /// <typeparam name="'E">Computation result element type</typeparam> 
+    /// <param name="enumerable">.NET IAsyncEnumerable&lt;'E&gt; (expression result)</param>
+    /// <returns>F# Async instance.</returns>
+    member __.For(enumerable: IAsyncEnumerable<'E>, body: 'E -> Async<'R>) =
+      Infrastructures.asAsyncE(enumerable, body, None)
+
+    /// <summary>
+    /// Accept any async sequence type to support `for .. in` expressions in Async workflows.
+    /// </summary>
+    /// <typeparam name="'E">The element type of the sequence</typeparam> 
+    /// <param name="s">The sequence.</param>
+    /// <returns>The sequence.</returns>
+    member __.Source(s: IAsyncEnumerable<'E>) =
+      s
+#endif
