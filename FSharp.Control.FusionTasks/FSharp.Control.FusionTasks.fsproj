@@ -51,7 +51,9 @@
 
   <ItemGroup>
     <Compile Include="CommonAssemblyInfo.fs" />
+    <Compile Include="Utilities.fs" />
     <Compile Include="Awaiters.fs" />
+    <Compile Include="AsyncCompletionSource.fs" />
     <Compile Include="Infrastructures.fs" />
     <Compile Include="AsyncExtensions.fs" />
     <Compile Include="TaskExtensions.fs" />

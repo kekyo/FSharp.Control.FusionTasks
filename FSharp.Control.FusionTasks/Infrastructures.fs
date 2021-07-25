@@ -160,46 +160,32 @@ module internal Infrastructures =
 
 #if !NET45 && !NETSTANDARD1_6 && !NETCOREAPP2_0
   let asAsyncE(enumerable: IAsyncEnumerable<'T>, body: 'T -> Async<'U>, ct: CancellationToken option) =
-    let enumerator = enumerable.GetAsyncEnumerator()
-    async {
-      try
-        let mutable finalValue = Option<'U>.None
-        let mutable cont = true
-        while cont do
-          let! next = asAsyncVT(enumerator.MoveNextAsync(), ct)
-          if next then
-            let! result = body enumerator.Current
-            finalValue <- Some result
-          else
-            cont <- false
-        return
-          match finalValue with
-          | Some value -> value
-          | None -> Unchecked.defaultof<'U>
-      finally
-        // TODO: Synchronous blocking...
-        enumerator.DisposeAsync().GetAwaiter().GetResult()
-    }
-
-  let asAsyncES(enumerable: IAsyncEnumerable<'T>, body: 'T -> Async<'U>, ct: CancellationToken option) =
-    async {
-      let enumerator = enumerable.GetAsyncEnumerator()
-      try
-        let mutable finalValue = Option<'U>.None
-        let mutable cont = true
-        while cont do
-          let! next = asAsyncVT(enumerator.MoveNextAsync(), ct)
-          if next then
-            let! result = body enumerator.Current
-            finalValue <- Some result
-          else
-            cont <- false
-        return
-          match finalValue with
-          | Some value -> value
-          | None -> Unchecked.defaultof<'U>
-      finally
-        // TODO: Synchronous blocking...
-        enumerator.DisposeAsync().GetAwaiter().GetResult()
-    }
+    let enumerator = enumerable.GetAsyncEnumerator(Utilities.unwrap ct)
+    Async.FromContinuations(
+      fun (completed, caught, canceled) ->
+        let mutable finalValue = Unchecked.defaultof<'U>
+        let rec whileLoop() =
+          try
+            let moveNextAwaiter = enumerator.MoveNextAsync().GetAwaiter()
+            let getResultContinuation() =
+              let moveNextResult = moveNextAwaiter.GetResult()
+              if moveNextResult then
+                let resultAsync = body enumerator.Current
+                Async.StartWithContinuations(
+                  resultAsync,
+                  (fun result ->
+                    finalValue <- result
+                    // Maybe will not cause stack overflow, because async workflow will be scattered recursive calls...
+                    whileLoop()),
+                  caught,
+                  canceled)
+              else
+                completed(finalValue)
+            if moveNextAwaiter.IsCompleted then
+              getResultContinuation()
+            else
+              moveNextAwaiter.OnCompleted(new Action(getResultContinuation))
+          with
+          | exn -> caught exn
+        whileLoop())
 #endif

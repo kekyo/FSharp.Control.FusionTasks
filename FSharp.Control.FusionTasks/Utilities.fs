@@ -23,6 +23,9 @@ open System
 open System.Threading
 open System.Threading.Tasks
 
+///////////////////////////////////////////////////////////////////////////////////
+// Utilities.
+
 module internal Utilities =
 
   let createCanceledException(token: CancellationToken option) =
@@ -37,3 +40,7 @@ module internal Utilities =
     match SynchronizationContext.Current with
     | null -> TaskScheduler.Current
     | _ -> TaskScheduler.FromCurrentSynchronizationContext()
+
+  let unwrap = function
+    | Some t -> t
+    | None -> Unchecked.defaultof<CancellationToken>
