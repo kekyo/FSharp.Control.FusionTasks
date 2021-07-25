@@ -165,6 +165,19 @@ module internal Infrastructures =
       fun (completed, caught, canceled) ->
         let mutable finalValue = Unchecked.defaultof<'U>
         let rec whileLoop() =
+          let finallyContinuation chainedContinuation =
+            try
+              let disposeAwaiter = enumerator.DisposeAsync().GetAwaiter()
+              if disposeAwaiter.IsCompleted then
+                disposeAwaiter.GetResult()
+                chainedContinuation()
+              else
+                disposeAwaiter.OnCompleted(
+                  fun () ->
+                    disposeAwaiter.GetResult()
+                    chainedContinuation())
+            with
+            | exn -> caught exn
           try
             let moveNextAwaiter = enumerator.MoveNextAsync().GetAwaiter()
             let getResultContinuation() =
@@ -177,15 +190,15 @@ module internal Infrastructures =
                     finalValue <- result
                     // Maybe will not cause stack overflow, because async workflow will be scattered recursive calls...
                     whileLoop()),
-                  caught,
-                  canceled)
+                  (fun exn -> finallyContinuation(fun () -> caught exn)),
+                  (fun exn -> finallyContinuation(fun () -> canceled exn)))
               else
-                completed(finalValue)
+                finallyContinuation(fun () -> completed finalValue)
             if moveNextAwaiter.IsCompleted then
               getResultContinuation()
             else
               moveNextAwaiter.OnCompleted(new Action(getResultContinuation))
           with
-          | exn -> caught exn
+          | exn -> finallyContinuation(fun () -> caught exn)
         whileLoop())
 #endif
