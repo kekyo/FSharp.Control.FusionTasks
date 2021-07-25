@@ -1,6 +1,16 @@
 name: .NET
 
-on: [push, pull_request, workflow_dispatch]
+on:
+  push:
+    branches:
+    - main
+    - devel
+  pull_request:
+    branches:
+    - main
+    - devel
+  workflow_dispatch:
+    branches:
 
 jobs:
   build:
