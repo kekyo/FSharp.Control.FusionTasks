@@ -280,11 +280,8 @@ module AsyncExtensions =
         do! Task.Delay 300
         let idAwaited2 = Thread.CurrentThread.ManagedThreadId
         Assert.AreEqual(id1, idAwaited2)
-        
-        context.Quit()
       }
-    computation |> Async.StartImmediate
-    context.Run()
+    context.Run(computation.AsTask())
 
   ////////////////////////////////////////////////////////////////////////
   // IAsyncEnumerable
@@ -571,26 +568,22 @@ module AsyncExtensions =
     let context = new ThreadBoundSynchronizationContext()
     SynchronizationContext.SetSynchronizationContext context
     let computation = async {
-      try
-        let values = [ 2; 5; 3; 7; 1 ]
-        let results = new System.Collections.Generic.List<int>()
-        let tid = Thread.CurrentThread.ManagedThreadId
-        for value in values.DelayEachAsync(delay).ConfigureAwait(capture) do
-          let tid2 = Thread.CurrentThread.ManagedThreadId
-          if capture then
-            Assert.AreEqual(tid, tid2)
-          else
-            Assert.AreNotEqual(tid, tid2)
-          results.Add value
-          do! Async.Sleep delay
-        let tid3 = Thread.CurrentThread.ManagedThreadId
+      let values = [ 2; 5; 3; 7; 1 ]
+      let results = new System.Collections.Generic.List<int>()
+      let tid = Thread.CurrentThread.ManagedThreadId
+      for value in values.DelayEachAsync(delay).ConfigureAwait(capture) do
+        let tid2 = Thread.CurrentThread.ManagedThreadId
         if capture then
-          Assert.AreEqual(tid, tid3)
+          Assert.AreEqual(tid, tid2)
         else
-          Assert.AreNotEqual(tid, tid3)
-        Assert.AreEqual(values, results)
-      finally
-        context.Quit();
+          Assert.AreNotEqual(tid, tid2)
+        results.Add value
+        do! Async.Sleep delay
+      let tid3 = Thread.CurrentThread.ManagedThreadId
+      if capture then
+        Assert.AreEqual(tid, tid3)
+      else
+        Assert.AreNotEqual(tid, tid3)
+      Assert.AreEqual(values, results)
     }
-    let _ = computation.AsTask()
-    context.Run()
+    context.Run(computation.AsTask())

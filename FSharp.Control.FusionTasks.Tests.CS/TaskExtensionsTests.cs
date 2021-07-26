@@ -245,32 +245,24 @@ namespace FSharp.Control.FusionTasks.Tests
 
             async Task ComputationAsync()
             {
-                try
-                {
-                    var idStartImmediately = Thread.CurrentThread.ManagedThreadId;
-                    Assert.AreEqual(id1, idStartImmediately);
+                var idStartImmediately = Thread.CurrentThread.ManagedThreadId;
+                Assert.AreEqual(id1, idStartImmediately);
 
-                    await FSharpAsync.StartImmediateAsTask(
-                        FSharpAsync.Sleep(300), FSharpOption<CancellationToken>.None);
-                    var idAwaitTask = Thread.CurrentThread.ManagedThreadId;
-                    Assert.AreEqual(id1, idAwaitTask);
+                await FSharpAsync.StartImmediateAsTask(
+                    FSharpAsync.Sleep(300), FSharpOption<CancellationToken>.None);
+                var idAwaitTask = Thread.CurrentThread.ManagedThreadId;
+                Assert.AreEqual(id1, idAwaitTask);
 
-                    await FSharpAsync.Sleep(300).AsTask();
-                    var idAwaited1 = Thread.CurrentThread.ManagedThreadId;
-                    Assert.AreEqual(id1, idAwaited1);
+                await FSharpAsync.Sleep(300).AsTask();
+                var idAwaited1 = Thread.CurrentThread.ManagedThreadId;
+                Assert.AreEqual(id1, idAwaited1);
 
-                    await FSharpAsync.Sleep(300).AsTask();
-                    var idAwaited2 = Thread.CurrentThread.ManagedThreadId;
-                    Assert.AreEqual(id1, idAwaited2);
-                }
-                finally
-                {
-                    context.Quit();
-                }
+                await FSharpAsync.Sleep(300).AsTask();
+                var idAwaited2 = Thread.CurrentThread.ManagedThreadId;
+                Assert.AreEqual(id1, idAwaited2);
             }
 
-            var _ = ComputationAsync();
-            context.Run();
+            context.Run(ComputationAsync());
         }
 
         [TestCase(true)]
@@ -283,40 +275,32 @@ namespace FSharp.Control.FusionTasks.Tests
 
             async Task ComputationAsync()
             {
-                try
+                var id2 = Thread.CurrentThread.ManagedThreadId;
+                Assert.AreEqual(id1, id2);
+
+                var values = new[] { 1, 2, 3, 4, 5 };
+                var delay = TimeSpan.FromMilliseconds(100);
+                var results = new List<int>();
+
+                await foreach (var value in values.DelayEachAsync(delay).ConfigureAwait(capture))
                 {
-                    var id2 = Thread.CurrentThread.ManagedThreadId;
-                    Assert.AreEqual(id1, id2);
+                    var id3 = Thread.CurrentThread.ManagedThreadId;
+                    if (capture) Assert.AreEqual(id1, id3);
+                    else Assert.AreNotEqual(id1, id3);
 
-                    var values = new[] { 1, 2, 3, 4, 5 };
-                    var delay = TimeSpan.FromMilliseconds(100);
-                    var results = new List<int>();
+                    results.Add(value);
 
-                    await foreach (var value in values.DelayEachAsync(delay).ConfigureAwait(capture))
-                    {
-                        var id3 = Thread.CurrentThread.ManagedThreadId;
-                        if (capture) Assert.AreEqual(id1, id3);
-                        else Assert.AreNotEqual(id1, id3);
-
-                        results.Add(value);
-
-                        await Task.Delay(delay);
-                    }
-
-                    var id4 = Thread.CurrentThread.ManagedThreadId;
-                    if (capture) Assert.AreEqual(id1, id4);
-                    else Assert.AreNotEqual(id1, id4);
-
-                    Assert.AreEqual(values, results);
+                    await Task.Delay(delay);
                 }
-                finally
-                {
-                    context.Quit();
-                }
+
+                var id4 = Thread.CurrentThread.ManagedThreadId;
+                if (capture) Assert.AreEqual(id1, id4);
+                else Assert.AreNotEqual(id1, id4);
+
+                Assert.AreEqual(values, results);
             }
 
-            var _ = ComputationAsync();
-            context.Run();
+            context.Run(ComputationAsync());
         }
     }
 }
