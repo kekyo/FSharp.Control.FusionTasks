@@ -31,7 +31,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\FSharp.Control.FusionTasks.Tests.Ulitilites\FSharp.Control.FusionTasks.Tests.Ulitilites.csproj" />
+    <ProjectReference Include="..\FSharp.Control.FusionTasks.Tests.Utilities\FSharp.Control.FusionTasks.Tests.Utilities.csproj" />
     <ProjectReference Include="..\FSharp.Control.FusionTasks\FSharp.Control.FusionTasks.fsproj" />
   </ItemGroup>
 
