@@ -269,6 +269,7 @@ module AsyncExtensions =
     /// </summary>
     /// <typeparam name="'E">Computation result element type</typeparam> 
     /// <param name="enumerable">.NET IAsyncEnumerable&lt;'E&gt; (expression result)</param>
+    /// <param name="body">for expression body</param>
     /// <returns>F# Async instance.</returns>
     member __.For(enumerable: IAsyncEnumerable<'E>, body: 'E -> Async<'R>) =
       Infrastructures.asAsyncE(enumerable, body, None)
