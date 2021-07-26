@@ -83,6 +83,7 @@ type ConfiguredTaskAsyncAwaiter internal (ctacta: ConfiguredTaskAwaitable.Config
 /// F# Async's awaitable implementation. This structure using implicitly.
 /// </summary>
 [<Struct; NoEquality; NoComparison; AutoSerializable(false)>]
+[<Obsolete("AsyncConfigure is compatibility on PCL environment. Use ConfigureAwait instead.")>]
 type ConfiguredTaskAsyncAwaitable internal (cta: ConfiguredTaskAwaitable) =
 
     member __.GetAwaiter() = ConfiguredTaskAsyncAwaiter(cta.GetAwaiter())
@@ -105,6 +106,7 @@ type ConfiguredTaskAsyncAwaiter<'T> internal (ctacta: ConfiguredTaskAwaitable<'T
 /// F# Async's awaitable implementation. This structure using implicitly.
 /// </summary>
 [<Struct; NoEquality; NoComparison; AutoSerializable(false)>]
+[<Obsolete("AsyncConfigure is compatibility on PCL environment. Use ConfigureAwait instead.")>]
 type ConfiguredTaskAsyncAwaitable<'T> internal (cta: ConfiguredTaskAwaitable<'T>) =
 
     member __.GetAwaiter() = ConfiguredTaskAsyncAwaiter<'T>(cta.GetAwaiter())
@@ -130,6 +132,7 @@ type ConfiguredValueTaskAsyncAwaiter internal (ctacta: ConfiguredValueTaskAwaita
 /// F# Async's awaitable implementation. This structure using implicitly.
 /// </summary>
 [<Struct; NoEquality; NoComparison; AutoSerializable(false)>]
+[<Obsolete("AsyncConfigure is compatibility on PCL environment. Use ConfigureAwait instead.")>]
 type ConfiguredValueTaskAsyncAwaitable internal (cta: ConfiguredValueTaskAwaitable) =
 
     member __.GetAwaiter() = ConfiguredValueTaskAsyncAwaiter(cta.GetAwaiter())
@@ -152,6 +155,7 @@ type ConfiguredValueTaskAsyncAwaiter<'T> internal (ctacta: ConfiguredValueTaskAw
 /// F# Async's awaitable implementation. This structure using implicitly.
 /// </summary>
 [<Struct; NoEquality; NoComparison; AutoSerializable(false)>]
+[<Obsolete("AsyncConfigure is compatibility on PCL environment. Use ConfigureAwait instead.")>]
 type ConfiguredValueTaskAsyncAwaitable<'T> internal (cta: ConfiguredValueTaskAwaitable<'T>) =
 
     member __.GetAwaiter() = ConfiguredValueTaskAsyncAwaiter<'T>(cta.GetAwaiter())

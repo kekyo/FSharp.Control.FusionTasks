@@ -23,6 +23,9 @@ open System
 open System.Threading
 open System.Threading.Tasks
 open System.Collections.Generic
+open System.Runtime.CompilerServices
+
+#nowarn "44"
 
 ///////////////////////////////////////////////////////////////////////////////////
 // Internal implementations.
@@ -178,9 +181,92 @@ module internal Infrastructures =
 
         let rec whileLoop() =
 
-          // Check early cancellation.
-          checkCancellation()
-          
+          // Finally handlers.
+          let finallyContinuation chainedContinuation =
+            try
+              let disposeAwaiter = enumerator.DisposeAsync().GetAwaiter()
+              if disposeAwaiter.IsCompleted then
+                disposeAwaiter.GetResult()
+                chainedContinuation()
+              else
+                disposeAwaiter.OnCompleted(
+                  fun () ->
+                    try
+                      disposeAwaiter.GetResult()
+                      chainedContinuation()
+                    with
+                    | exn -> caught exn)
+            with
+            | exn -> caught exn
+          let completedContinuation value =
+            finallyContinuation (fun () -> completed value)
+          let caughtContinuation exn =
+            finallyContinuation (fun () -> caught exn)
+          let canceledContinuation exn =
+            finallyContinuation (fun () -> canceled exn)
+
+          // (Recursive) Loop main:
+          try
+            // Check early cancellation.
+            checkCancellation()
+
+            let moveNextAwaiter = enumerator.MoveNextAsync().GetAwaiter()
+
+            // Will get result and invoke continuation.
+            let getResultContinuation() =
+              // Got next (asynchronous) value?
+              let moveNextResult = moveNextAwaiter.GetResult()
+              if moveNextResult then
+                // Got Async<'U>
+                let resultAsync = body enumerator.Current
+                // Will get value asynchronously.
+                Async.StartWithContinuations(
+                  resultAsync,
+                  // Got:
+                  (fun result ->
+                    // Save last value
+                    finalValue <- result
+                    // NOTE: Maybe will not cause stack overflow, because async workflow will be scattered recursive calls...
+                    whileLoop()),
+                  // Caught asynchronous monadic exception.
+                  caughtContinuation,
+                  // Caught asynchronous monadic cancel exception.
+                  canceledContinuation)
+              // Didn't get next value (= finished)
+              else
+                // Completed totally asynchronous sequence.
+                completedContinuation finalValue
+
+            // Already completed synchronously MoveNextAsync() ?
+            if moveNextAwaiter.IsCompleted then
+              // Get result synchronously.
+              getResultContinuation()
+            else
+              // Delay getting result.
+              moveNextAwaiter.OnCompleted(
+                fun () ->
+                  try
+                    getResultContinuation()
+                  with
+                  | exn -> caughtContinuation exn)
+          with
+          | exn -> caughtContinuation exn
+
+        // Start simulated asynchronous loop.
+        whileLoop())
+
+  let asAsyncCCAE(enumerable: ConfiguredCancelableAsyncEnumerable<'T>, body: 'T -> Async<'U>) =
+
+    // Get asynchronous enumerator.
+    let enumerator = enumerable.GetAsyncEnumerator()
+
+    // Wrap asynchronous monad.
+    Async.FromContinuations(
+      fun (completed, caught, canceled) ->
+        let mutable finalValue = Unchecked.defaultof<'U>
+
+        let rec whileLoop() =
+
           // Finally handlers.
           let finallyContinuation chainedContinuation =
             try

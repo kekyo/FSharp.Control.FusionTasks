@@ -20,9 +20,11 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace FSharp.Control.FusionTasks.Tests
 {
+    // https://github.com/kekyo/SynchContextSample
     public sealed class ThreadBoundSynchronizationContext :
         SynchronizationContext
     {
@@ -43,9 +45,22 @@ namespace FSharp.Control.FusionTasks.Tests
         private readonly ManualResetEventSlim queued = new ManualResetEventSlim(false);
         private readonly ManualResetEventSlim quit = new ManualResetEventSlim(false);
 
-        public void Run()
+        public void Run(Task? runTask)
         {
             this.boundThreadId = Thread.CurrentThread.ManagedThreadId;
+
+            runTask?.ContinueWith(task =>
+            {
+                if (task.IsFaulted || task.IsCanceled)
+                {
+                    this.Post(_ => task.Wait(), null);
+                }
+                else
+                {
+                    this.Quit();
+                }
+            });
+
             while (true)
             {
                 if (WaitHandle.WaitAny(new [] { this.queued.WaitHandle, this.quit.WaitHandle }) == 1)
@@ -72,8 +87,8 @@ namespace FSharp.Control.FusionTasks.Tests
 
         public void Quit() =>
             this.quit.Set();
-        
-        public override void Post(SendOrPostCallback d, object? state)
+
+        public override void Send(SendOrPostCallback d, object? state)
         {
             lock (this.entries)
             {
@@ -87,8 +102,20 @@ namespace FSharp.Control.FusionTasks.Tests
                     return;
                 }
             }
-            
+
             d(state);
+        }
+
+        public override void Post(SendOrPostCallback d, object? state)
+        {
+            lock (this.entries)
+            {
+                this.entries.Enqueue(new Entry(d, state));
+                if (this.entries.Count >= 1)
+                {
+                    this.queued.Set();
+                }
+            }
         }
     }
 }
