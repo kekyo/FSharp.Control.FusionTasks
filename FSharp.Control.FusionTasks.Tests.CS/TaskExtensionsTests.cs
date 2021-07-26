@@ -18,6 +18,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.FSharp.Control;
@@ -244,23 +245,74 @@ namespace FSharp.Control.FusionTasks.Tests
 
             async Task ComputationAsync()
             {
-                var idStartImmediately = Thread.CurrentThread.ManagedThreadId;
-                Assert.AreEqual(id1, idStartImmediately);
+                try
+                {
+                    var idStartImmediately = Thread.CurrentThread.ManagedThreadId;
+                    Assert.AreEqual(id1, idStartImmediately);
 
-                await FSharpAsync.StartImmediateAsTask(
-                    FSharpAsync.Sleep(300), FSharpOption<CancellationToken>.None);
-                var idAwaitTask = Thread.CurrentThread.ManagedThreadId;
-                Assert.AreEqual(id1, idAwaitTask);
+                    await FSharpAsync.StartImmediateAsTask(
+                        FSharpAsync.Sleep(300), FSharpOption<CancellationToken>.None);
+                    var idAwaitTask = Thread.CurrentThread.ManagedThreadId;
+                    Assert.AreEqual(id1, idAwaitTask);
 
-                await FSharpAsync.Sleep(300).AsTask();
-                var idAwaited1 = Thread.CurrentThread.ManagedThreadId;
-                Assert.AreEqual(id1, idAwaited1);
+                    await FSharpAsync.Sleep(300).AsTask();
+                    var idAwaited1 = Thread.CurrentThread.ManagedThreadId;
+                    Assert.AreEqual(id1, idAwaited1);
 
-                await FSharpAsync.Sleep(300).AsTask();
-                var idAwaited2 = Thread.CurrentThread.ManagedThreadId;
-                Assert.AreEqual(id1, idAwaited2);
+                    await FSharpAsync.Sleep(300).AsTask();
+                    var idAwaited2 = Thread.CurrentThread.ManagedThreadId;
+                    Assert.AreEqual(id1, idAwaited2);
+                }
+                finally
+                {
+                    context.Quit();
+                }
+            }
 
-                context.Quit();
+            var _ = ComputationAsync();
+            context.Run();
+        }
+
+        [TestCase(true)]
+        [TestCase(false)]
+        public void ThreadBoundSynchronizationContextTest(bool capture)
+        {
+            var id1 = Thread.CurrentThread.ManagedThreadId;
+            var context = new ThreadBoundSynchronizationContext();
+            SynchronizationContext.SetSynchronizationContext(context);
+
+            async Task ComputationAsync()
+            {
+                try
+                {
+                    var id2 = Thread.CurrentThread.ManagedThreadId;
+                    Assert.AreEqual(id1, id2);
+
+                    var values = new[] { 1, 2, 3, 4, 5 };
+                    var delay = TimeSpan.FromMilliseconds(100);
+                    var results = new List<int>();
+
+                    await foreach (var value in values.DelayEachAsync(delay).ConfigureAwait(capture))
+                    {
+                        var id3 = Thread.CurrentThread.ManagedThreadId;
+                        if (capture) Assert.AreEqual(id1, id3);
+                        else Assert.AreNotEqual(id1, id3);
+
+                        results.Add(value);
+
+                        await Task.Delay(delay);
+                    }
+
+                    var id4 = Thread.CurrentThread.ManagedThreadId;
+                    if (capture) Assert.AreEqual(id1, id4);
+                    else Assert.AreNotEqual(id1, id4);
+
+                    Assert.AreEqual(values, results);
+                }
+                finally
+                {
+                    context.Quit();
+                }
             }
 
             var _ = ComputationAsync();

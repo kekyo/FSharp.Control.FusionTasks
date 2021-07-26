@@ -72,8 +72,8 @@ namespace FSharp.Control.FusionTasks.Tests
 
         public void Quit() =>
             this.quit.Set();
-        
-        public override void Post(SendOrPostCallback d, object? state)
+
+        public override void Send(SendOrPostCallback d, object? state)
         {
             lock (this.entries)
             {
@@ -87,8 +87,20 @@ namespace FSharp.Control.FusionTasks.Tests
                     return;
                 }
             }
-            
+
             d(state);
+        }
+
+        public override void Post(SendOrPostCallback d, object? state)
+        {
+            lock (this.entries)
+            {
+                this.entries.Enqueue(new Entry(d, state));
+                if (this.entries.Count >= 1)
+                {
+                    this.queued.Set();
+                }
+            }
         }
     }
 }

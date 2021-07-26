@@ -565,48 +565,32 @@ module AsyncExtensions =
     }
     computation.AsTask()
 
-  [<Test>]
-  let AsyncEnumerableIterationNotCapturedContextTest() =
+  [<TestCase(true)>]
+  [<TestCase(false)>]
+  let AsyncEnumerableIterationCaptureContextTest(capture: bool) =
     let context = new ThreadBoundSynchronizationContext()
     SynchronizationContext.SetSynchronizationContext context
     let computation = async {
-      let values = [ 2; 5; 3; 7; 1 ]
-      let results = new System.Collections.Generic.List<int>()
-      let tid = Thread.CurrentThread.ManagedThreadId
-      let mutable first = true
-      for value in values.DelayEachAsync(delay).ConfigureAwait(false) do
-        let tid2 = Thread.CurrentThread.ManagedThreadId
-        if first then
-          Assert.AreEqual(tid, tid2)
+      try
+        let values = [ 2; 5; 3; 7; 1 ]
+        let results = new System.Collections.Generic.List<int>()
+        let tid = Thread.CurrentThread.ManagedThreadId
+        for value in values.DelayEachAsync(delay).ConfigureAwait(capture) do
+          let tid2 = Thread.CurrentThread.ManagedThreadId
+          if capture then
+            Assert.AreEqual(tid, tid2)
+          else
+            Assert.AreNotEqual(tid, tid2)
+          results.Add value
+          do! Async.Sleep delay
+        let tid3 = Thread.CurrentThread.ManagedThreadId
+        if capture then
+          Assert.AreEqual(tid, tid3)
         else
-          Assert.AreNotEqual(tid, tid2)
-        results.Add value
-        do! Async.Sleep delay
-      let tid3 = Thread.CurrentThread.ManagedThreadId
-      Assert.AreNotEqual(tid, tid3)
-      Assert.AreEqual(values, results)
-      context.Quit();
-    }
-    let _ = computation.AsTask()
-    context.Run()
-
-  [<Test>]
-  let AsyncEnumerableIterationCapturedContextTest() =
-    let context = new ThreadBoundSynchronizationContext()
-    SynchronizationContext.SetSynchronizationContext context
-    let computation = async {
-      let values = [ 2; 5; 3; 7; 1 ]
-      let results = new System.Collections.Generic.List<int>()
-      let tid = Thread.CurrentThread.ManagedThreadId
-      for value in values.DelayEachAsync(delay).ConfigureAwait(true) do
-        let tid2 = Thread.CurrentThread.ManagedThreadId
-        Assert.AreEqual(tid, tid2)
-        results.Add value
-        do! Async.Sleep delay
-      let tid3 = Thread.CurrentThread.ManagedThreadId
-      Assert.AreEqual(tid, tid3)
-      Assert.AreEqual(values, results)
-      context.Quit();
+          Assert.AreNotEqual(tid, tid3)
+        Assert.AreEqual(values, results)
+      finally
+        context.Quit();
     }
     let _ = computation.AsTask()
     context.Run()

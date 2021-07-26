@@ -35,7 +35,7 @@ namespace FSharp.Control.FusionTasks.Tests
         {
             foreach (var value in enumerable)
             {
-                await Task.Delay(delay);
+                await Task.Delay(delay).ConfigureAwait(false);
                 yield return value;
             }
         }
