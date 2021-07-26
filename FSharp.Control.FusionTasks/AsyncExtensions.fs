@@ -294,6 +294,9 @@ module AsyncExtensions =
     member __.For(enumerable: ConfiguredCancelableAsyncEnumerable<'E>, body: 'E -> Async<'R>) =
       Infrastructures.asAsyncCCAE(enumerable, body)
 
+    member __.Using(disposable: 'T :> IAsyncDisposable, body: 'T -> Async<'R>) : Async<'R> =
+      Infrastructures.asAsyncD(disposable, body)
+
     /// <summary>
     /// Accept any async sequence type to support `for .. in` expressions in Async workflows.
     /// </summary>
@@ -307,7 +310,7 @@ module AsyncExtensions =
     /// Accept any async sequence type to support `for .. in` expressions in Async workflows.
     /// </summary>
     /// <typeparam name="'E">The element type of the sequence</typeparam> 
-    /// <param name="enumerable">.NET IAsyncEnumerable&lt;'E&gt; (expression result)</param>
+    /// <param name="enumerable">.NET ConfiguredCancelableAsyncEnumerable&lt;'E&gt; (expression result)</param>
     /// <returns>The sequence.</returns>
     member __.Source(enumerable: ConfiguredCancelableAsyncEnumerable<'E>) =
       enumerable

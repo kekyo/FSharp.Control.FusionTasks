@@ -162,6 +162,40 @@ module internal Infrastructures =
         |> ignore)
 
 #if !NET45 && !NETSTANDARD1_6 && !NETCOREAPP2_0
+
+  let private finallyAD (disposable: IAsyncDisposable) (continuation: unit -> unit) (caught: exn -> unit) =
+    let disposeAwaiter = disposable.DisposeAsync().GetAwaiter()
+    if disposeAwaiter.IsCompleted then
+      disposeAwaiter.GetResult()
+      continuation()
+    else
+      disposeAwaiter.OnCompleted(
+        fun () ->
+          try
+            disposeAwaiter.GetResult()
+            continuation()
+          with
+          | exn -> caught exn)
+
+  let private finallyCCAEE (disposable: ConfiguredCancelableAsyncEnumerable<'T>.Enumerator) (continuation: unit -> unit) (caught: exn -> unit) =
+    let disposeAwaiter = disposable.DisposeAsync().GetAwaiter()
+    if disposeAwaiter.IsCompleted then
+      disposeAwaiter.GetResult()
+      continuation()
+    else
+      disposeAwaiter.OnCompleted(
+        fun () ->
+          try
+            disposeAwaiter.GetResult()
+            continuation()
+          with
+          | exn -> caught exn)
+
+  //let asyncD(disposable: 'T :> IAsyncDisposable, body: 'T -> Async<'R>) =
+  //  Async.FromContinuations(
+  //    fun (completed, caught, canceled) ->
+  //      finallyD disposable 
+
   let asAsyncE(enumerable: IAsyncEnumerable<'T>, body: 'T -> Async<'U>, ct: CancellationToken option) =
 
     let checkCancellation() =
@@ -182,28 +216,12 @@ module internal Infrastructures =
         let rec whileLoop() =
 
           // Finally handlers.
-          let finallyContinuation chainedContinuation =
-            try
-              let disposeAwaiter = enumerator.DisposeAsync().GetAwaiter()
-              if disposeAwaiter.IsCompleted then
-                disposeAwaiter.GetResult()
-                chainedContinuation()
-              else
-                disposeAwaiter.OnCompleted(
-                  fun () ->
-                    try
-                      disposeAwaiter.GetResult()
-                      chainedContinuation()
-                    with
-                    | exn -> caught exn)
-            with
-            | exn -> caught exn
           let completedContinuation value =
-            finallyContinuation (fun () -> completed value)
+            finallyAD enumerator (fun () -> completed value) caught
           let caughtContinuation exn =
-            finallyContinuation (fun () -> caught exn)
+            finallyAD enumerator (fun () -> caught exn) caught
           let canceledContinuation exn =
-            finallyContinuation (fun () -> canceled exn)
+            finallyAD enumerator (fun () -> canceled exn) caught
 
           // (Recursive) Loop main:
           try
@@ -268,28 +286,12 @@ module internal Infrastructures =
         let rec whileLoop() =
 
           // Finally handlers.
-          let finallyContinuation chainedContinuation =
-            try
-              let disposeAwaiter = enumerator.DisposeAsync().GetAwaiter()
-              if disposeAwaiter.IsCompleted then
-                disposeAwaiter.GetResult()
-                chainedContinuation()
-              else
-                disposeAwaiter.OnCompleted(
-                  fun () ->
-                    try
-                      disposeAwaiter.GetResult()
-                      chainedContinuation()
-                    with
-                    | exn -> caught exn)
-            with
-            | exn -> caught exn
           let completedContinuation value =
-            finallyContinuation (fun () -> completed value)
+            finallyCCAEE enumerator (fun () -> completed value) caught
           let caughtContinuation exn =
-            finallyContinuation (fun () -> caught exn)
+            finallyCCAEE enumerator (fun () -> caught exn) caught
           let canceledContinuation exn =
-            finallyContinuation (fun () -> canceled exn)
+            finallyCCAEE enumerator (fun () -> canceled exn) caught
 
           // (Recursive) Loop main:
           try
@@ -337,4 +339,5 @@ module internal Infrastructures =
 
         // Start simulated asynchronous loop.
         whileLoop())
+
 #endif

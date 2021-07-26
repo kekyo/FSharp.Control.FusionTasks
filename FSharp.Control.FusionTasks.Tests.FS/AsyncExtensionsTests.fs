@@ -587,3 +587,14 @@ module AsyncExtensions =
       Assert.AreEqual(values, results)
     }
     context.Run(computation.AsTask())
+
+  [<Test>]
+  let AsyncDisposableTest() =
+    let computation = async {
+      use d = AsyncDisposableFactory.CreateDelegatedAsyncDisposable(fun () ->
+        (async {
+          do! Async.Sleep delay
+        }).AsTask())
+      return 0
+    }
+    computation.AsTask()
