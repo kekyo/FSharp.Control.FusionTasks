@@ -23,18 +23,21 @@ open System
 open System.Threading
 open System.Threading.Tasks
 open System.Collections.Generic
+open System.Runtime.CompilerServices
+
+#nowarn "44"
 
 ///////////////////////////////////////////////////////////////////////////////////
 // Internal implementations.
 
 module internal Infrastructures =
 
-  let private (|IsFaulted|IsCanceled|IsCompleted|) (task: Task) =
+  let inline private (|IsFaulted|IsCanceled|IsCompleted|) (task: Task) =
     if task.IsFaulted then IsFaulted task.Exception
     else if task.IsCanceled then IsCanceled
     else IsCompleted
 
-  let private safeToken (ct: CancellationToken option) =
+  let inline private safeToken (ct: CancellationToken option) =
     match ct with
     | Some token -> token
     | None -> Async.DefaultCancellationToken
@@ -159,9 +162,67 @@ module internal Infrastructures =
         |> ignore)
 
 #if !NET45 && !NETSTANDARD1_6 && !NETCOREAPP2_0
-  let asAsyncE(enumerable: IAsyncEnumerable<'T>, body: 'T -> Async<'U>, ct: CancellationToken option) =
 
-    let checkCancellation() =
+  let private finallyAD (disposable: IAsyncDisposable) (continuation: unit -> unit) (caught: exn -> unit) =
+    try
+      let disposeAwaiter = disposable.DisposeAsync().GetAwaiter()
+      if disposeAwaiter.IsCompleted then
+        disposeAwaiter.GetResult()
+        continuation()
+      else
+        disposeAwaiter.OnCompleted(
+          fun () ->
+            try
+              disposeAwaiter.GetResult()
+              continuation()
+            with
+            | exn -> caught exn)
+    with
+    | exn -> caught exn
+
+  let private finallyCCAEE (disposable: ConfiguredCancelableAsyncEnumerable<'T>.Enumerator) (continuation: unit -> unit) (caught: exn -> unit) =
+    try
+      let disposeAwaiter = disposable.DisposeAsync().GetAwaiter()
+      if disposeAwaiter.IsCompleted then
+        disposeAwaiter.GetResult()
+        continuation()
+      else
+        disposeAwaiter.OnCompleted(
+          fun () ->
+            try
+              disposeAwaiter.GetResult()
+              continuation()
+            with
+            | exn -> caught exn)
+    with
+    | exn -> caught exn
+
+  let asAsyncAD(disposable: 'T :> IAsyncDisposable, body: 'T -> Async<'R>) =
+
+    let bodyAsync = body disposable
+
+    // Wrap asynchronous monad.
+    Async.FromContinuations(
+      fun (completed, caught, canceled) ->
+
+        // Finally handlers.
+        let completedContinuation value =
+          finallyAD disposable (fun () -> completed value) caught
+        let caughtContinuation exn =
+          finallyAD disposable (fun () -> caught exn) caught
+        let canceledContinuation exn =
+          finallyAD disposable (fun () -> canceled exn) caught
+
+        Async.StartWithContinuations(
+          bodyAsync,
+          // Got:
+          completedContinuation,
+          caughtContinuation,
+          canceledContinuation))
+
+  let asAsyncAE(enumerable: IAsyncEnumerable<'T>, body: 'T -> Async<'U>, ct: CancellationToken option) =
+
+    let inline checkCancellation() =
       if ct.IsSome then
         ct.Value.ThrowIfCancellationRequested()
 
@@ -178,32 +239,83 @@ module internal Infrastructures =
 
         let rec whileLoop() =
 
-          // Check early cancellation.
-          checkCancellation()
-          
           // Finally handlers.
-          let finallyContinuation chainedContinuation =
-            try
-              let disposeAwaiter = enumerator.DisposeAsync().GetAwaiter()
-              if disposeAwaiter.IsCompleted then
-                disposeAwaiter.GetResult()
-                chainedContinuation()
-              else
-                disposeAwaiter.OnCompleted(
-                  fun () ->
-                    try
-                      disposeAwaiter.GetResult()
-                      chainedContinuation()
-                    with
-                    | exn -> caught exn)
-            with
-            | exn -> caught exn
           let completedContinuation value =
-            finallyContinuation (fun () -> completed value)
+            finallyAD enumerator (fun () -> completed value) caught
           let caughtContinuation exn =
-            finallyContinuation (fun () -> caught exn)
+            finallyAD enumerator (fun () -> caught exn) caught
           let canceledContinuation exn =
-            finallyContinuation (fun () -> canceled exn)
+            finallyAD enumerator (fun () -> canceled exn) caught
+
+          // (Recursive) Loop main:
+          try
+            // Check early cancellation.
+            checkCancellation()
+
+            let moveNextAwaiter = enumerator.MoveNextAsync().GetAwaiter()
+
+            // Will get result and invoke continuation.
+            let getResultContinuation() =
+              // Got next (asynchronous) value?
+              let moveNextResult = moveNextAwaiter.GetResult()
+              if moveNextResult then
+                // Got Async<'U>
+                let resultAsync = body enumerator.Current
+                // Will get value asynchronously.
+                Async.StartWithContinuations(
+                  resultAsync,
+                  // Got:
+                  (fun result ->
+                    // Save last value
+                    finalValue <- result
+                    // NOTE: Maybe will not cause stack overflow, because async workflow will be scattered recursive calls...
+                    whileLoop()),
+                  // Caught asynchronous monadic exception.
+                  caughtContinuation,
+                  // Caught asynchronous monadic cancel exception.
+                  canceledContinuation)
+              // Didn't get next value (= finished)
+              else
+                // Completed totally asynchronous sequence.
+                completedContinuation finalValue
+
+            // Already completed synchronously MoveNextAsync() ?
+            if moveNextAwaiter.IsCompleted then
+              // Get result synchronously.
+              getResultContinuation()
+            else
+              // Delay getting result.
+              moveNextAwaiter.OnCompleted(
+                fun () ->
+                  try
+                    getResultContinuation()
+                  with
+                  | exn -> caughtContinuation exn)
+          with
+          | exn -> caughtContinuation exn
+
+        // Start simulated asynchronous loop.
+        whileLoop())
+
+  let asAsyncCCAE(enumerable: ConfiguredCancelableAsyncEnumerable<'T>, body: 'T -> Async<'U>) =
+
+    // Get asynchronous enumerator.
+    let enumerator = enumerable.GetAsyncEnumerator()
+
+    // Wrap asynchronous monad.
+    Async.FromContinuations(
+      fun (completed, caught, canceled) ->
+        let mutable finalValue = Unchecked.defaultof<'U>
+
+        let rec whileLoop() =
+
+          // Finally handlers.
+          let completedContinuation value =
+            finallyCCAEE enumerator (fun () -> completed value) caught
+          let caughtContinuation exn =
+            finallyCCAEE enumerator (fun () -> caught exn) caught
+          let canceledContinuation exn =
+            finallyCCAEE enumerator (fun () -> canceled exn) caught
 
           // (Recursive) Loop main:
           try
@@ -251,4 +363,5 @@ module internal Infrastructures =
 
         // Start simulated asynchronous loop.
         whileLoop())
+
 #endif

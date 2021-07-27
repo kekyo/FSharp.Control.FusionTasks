@@ -9,7 +9,7 @@
 
 ## What is this?
 * F# Async workflow <--> .NET Task/ValueTask easy seamless interoperability library.
-* Sample codes (F# side):
+* Sample code (F# side):
 
 ``` fsharp
 let asyncTest = async {
@@ -25,7 +25,7 @@ let asyncTest = async {
 }
 ```
 
-* Sample codes (C# side):
+* Sample code (C# side):
 
 ``` csharp
 using System.Threading.Tasks;
@@ -44,10 +44,11 @@ public async Task AsyncTest(FSharpAsync<int> asyncIntComp)
 ```
 
 ## Features
-* Easy interoperability .NET Task/ValueTask <--> F#'s Async.
-* F# async workflow block now support direct .NET Task/ValueTask handle with let!, do! and use!.
-* .NET (C# async-await) now support directly F#'s Async.
+* Easy interoperable .NET Task/ValueTask <--> F#'s Async.
+* F# async workflow block now supports directly .NET Task/ValueTask handle with let!, do! and use!.
+* .NET (C# async-await) now supports directly F#'s Async.
 * SyncronizationContext capture operation support (F#: AsyncConfigure method / .NET (C#) AsAsyncConfigured method)
+* .NET now supports standard asynchronous sequence called `IAsyncEnumerable<T>`, FusionTasks supports it with `for` expression.
 
 ## Benefits
 * Easy interoperability, combination and relation standard .NET OSS packages using Task/ValueTask and F#'s Async.
@@ -112,16 +113,15 @@ let length = ms.ReadAsync(data, 0, data.Length).AsAsync(cts.Token) |> Async.RunS
 
 ``` fsharp
 let asyncTest = async {
-  use ms = new MemoryStream()
+  use ms = new MemoryStream(...)
 
-  // Task<T> --> ConfiguredAsyncAwaitable<'T> :
-  // Why use AsyncConfigure() instead ConfigureAwait() ?
-  //   Because the "ConfiguredTaskAwaitable<T>" lack declare the TypeForwardedTo attribute in some PCL.
-  //   If use AsyncConfigure(), complete hidden refer ConfiguredTaskAwaitable into FusionTasks assembly,
-  //   avoid strange linking errors.
-  let! length = ms.ReadAsync(data, 0, data.Length).AsyncConfigure(false)
+  // We can use ConfigureAwait() on let!.
+  let! length = ms.ReadAsync(data, 0, data.Length).ConfigureAwait(false)
 }
 ```
+
+NOTE: Older released contains `AsyncConfigure(bool)` method, but it was obsoleted.
+Because it existed for avoiding PCL strange linking errors.
 
 ### Delegate async continuation - works like TaskCompletionSource&lt;T&gt;:
 
@@ -144,11 +144,11 @@ let asyncCalculate() =
   acs.Async
 ```
 
-### Basic .NET standard asynchronous sequence IAsyncEnumerable&lt;T&gt;:
+### .NET standard asynchronous sequence IAsyncEnumerable&lt;T&gt;:
 
 ``` fsharp
 let asyncTest = async {
-  // FusionTasks directly interpreted System.Collection.Generic.IAsyncEnumerable<'T> in
+  // FusionTasks directly interpreted System.Collection.Generic.IAsyncEnumerable<T> in
   // F# async-workflow for expression.
   for value in FooBarAccessor.EnumerableAsync() do
     // Totally asynchronous operation in each asynchronous iteration:
@@ -159,7 +159,33 @@ let asyncTest = async {
 }
 ```
 
-### TIPS: We have to add annotation for arguments if using it async workflow:
+And, we can use `IAsyncEnumerable<T>.ConfigureAwait(bool)` on it.
+
+NOTE: `IAsyncEnumerable<T>` is supported only these environments:
+
+* net461 or higher.
+* netstandard2.0 or higher.
+* netcoreapp2.1 or higher.
+
+It limitation comes from [NuGet Microsoft.Bcl.AsyncInterfaces 5.0.0.](https://www.nuget.org/packages/Microsoft.Bcl.AsyncInterfaces/)
+
+### .NET standard asynchronous disposer IAsyncDisposable:
+
+``` fsharp
+let asyncTest = async {
+  // FusionTasks directly interpreted System.IAsyncDisposable in
+  // F# async-workflow use expression.
+  // TIP: We can use `use` expression instead of `use!`,
+  // Because the `use!` will be bound asynchronously BEFORE calling `DisposeAsync()`.
+  use accessor = DatabaseAccessor.getAsyncDisposableAccessor()
+
+  // (Use accessor...)
+
+  // (Will be disposed asynchronously, calls `DisposeAsync()` at end of scope...)
+}
+```
+
+### TIPS: We have to add annotation for arguments if using it in async workflow:
 
 ``` fsharp
 let asyncInner arg0 = async {
@@ -237,6 +263,10 @@ asyncSequenceData.AsTask().Dump()
 * Under Apache v2 http://www.apache.org/licenses/LICENSE-2.0
 
 ## History
+* 2.3.3:
+  * Supported .NET asynchronous disposer (`IAsyncDisposable`).
+  * Supported releasing synchronization context by `IAsyncEnumerable<T>.ConfigureAwait(bool)`.
+  * Fixed minor exception leaking at the continuation for asynchronous sequence.
 * 2.3.0:
   * Supported .NET asynchronous sequence (`IAsyncEnumerable` and essential types).
 * 2.2.0:

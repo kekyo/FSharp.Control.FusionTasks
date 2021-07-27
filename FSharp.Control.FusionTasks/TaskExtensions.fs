@@ -25,6 +25,8 @@ open System.Runtime.CompilerServices
 open System.Threading
 open Microsoft.FSharp.Control
 
+#nowarn "44"
+
 /// <summary>
 /// Seamless conversion extensions in standard .NET Task based infrastructure.
 /// </summary>

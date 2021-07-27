@@ -25,6 +25,8 @@ open System.Runtime.CompilerServices
 open System.Threading
 open System.Threading.Tasks
 
+#nowarn "44"
+
 [<AutoOpen>]
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module AsyncExtensions =
@@ -71,6 +73,7 @@ module AsyncExtensions =
     /// </summary>
     /// <param name="continueOnCapturedContext">True if continuation running on captured SynchronizationContext</param>
     /// <returns>ConfiguredAsyncAwaitable instance</returns>
+    [<Obsolete("AsyncConfigure is compatibility on PCL environment. Use ConfigureAwait instead.")>]
     member task.AsyncConfigure(continueOnCapturedContext: bool) =
       ConfiguredTaskAsyncAwaitable(task.ConfigureAwait(continueOnCapturedContext))
 
@@ -91,6 +94,7 @@ module AsyncExtensions =
     /// <typeparam name="'T">Computation result type</typeparam> 
     /// <param name="continueOnCapturedContext">True if continuation running on captured SynchronizationContext</param>
     /// <returns>ConfiguredAsyncAwaitable instance</returns>
+    [<Obsolete("AsyncConfigure is compatibility on PCL environment. Use ConfigureAwait instead.")>]
     member task.AsyncConfigure(continueOnCapturedContext: bool) =
       ConfiguredTaskAsyncAwaitable<'T>(task.ConfigureAwait(continueOnCapturedContext))
 
@@ -109,6 +113,7 @@ module AsyncExtensions =
     /// </summary>
     /// <param name="continueOnCapturedContext">True if continuation running on captured SynchronizationContext</param>
     /// <returns>ConfiguredAsyncAwaitable instance</returns>
+    [<Obsolete("AsyncConfigure is compatibility on PCL environment. Use ConfigureAwait instead.")>]
     member task.AsyncConfigure(continueOnCapturedContext: bool) =
       ConfiguredValueTaskAsyncAwaitable(task.ConfigureAwait(continueOnCapturedContext))
 
@@ -129,6 +134,7 @@ module AsyncExtensions =
     /// <typeparam name="'T">Computation result type</typeparam> 
     /// <param name="continueOnCapturedContext">True if continuation running on captured SynchronizationContext</param>
     /// <returns>ConfiguredAsyncAwaitable instance</returns>
+    [<Obsolete("AsyncConfigure is compatibility on PCL environment. Use ConfigureAwait instead.")>]
     member task.AsyncConfigure(continueOnCapturedContext: bool) =
       ConfiguredValueTaskAsyncAwaitable<'T>(task.ConfigureAwait(continueOnCapturedContext))
   
@@ -208,6 +214,7 @@ module AsyncExtensions =
     /// </summary>
     /// <param name="cta">.NET ConfiguredTaskAwaitable (expr.ConfigureAwait(...))</param>
     /// <returns>F# Async instance.</returns>
+    [<Obsolete("AsyncConfigure is compatibility on PCL environment. Use ConfigureAwait instead.")>]
     member __.Source(cta: ConfiguredTaskAsyncAwaitable) =
       Infrastructures.asAsyncCTA(cta)
 
@@ -217,6 +224,7 @@ module AsyncExtensions =
     /// <typeparam name="'T">Computation result type</typeparam> 
     /// <param name="cta">.NET ConfiguredTaskAwaitable&lt;'T&gt; (expr.ConfigureAwait(...))</param>
     /// <returns>F# Async instance.</returns>
+    [<Obsolete("AsyncConfigure is compatibility on PCL environment. Use ConfigureAwait instead.")>]
     member __.Source(cta: ConfiguredTaskAsyncAwaitable<'T>) =
       Infrastructures.asAsyncCTAT(cta)
 
@@ -233,6 +241,7 @@ module AsyncExtensions =
     /// </summary>
     /// <param name="cta">.NET ConfiguredValueTaskAwaitable (expr.ConfigureAwait(...))</param>
     /// <returns>F# Async instance.</returns>
+    [<Obsolete("AsyncConfigure is compatibility on PCL environment. Use ConfigureAwait instead.")>]
     member __.Source(cta: ConfiguredValueTaskAsyncAwaitable) =
       Infrastructures.asAsyncCVTA(cta)
 
@@ -251,6 +260,7 @@ module AsyncExtensions =
     /// <typeparam name="'T">Computation result type</typeparam> 
     /// <param name="cta">.NET ConfiguredValueTaskAwaitable&lt;'T&gt; (expr.ConfigureAwait(...))</param>
     /// <returns>F# Async instance.</returns>
+    [<Obsolete("AsyncConfigure is compatibility on PCL environment. Use ConfigureAwait instead.")>]
     member __.Source(cta: ConfiguredValueTaskAsyncAwaitable<'T>) =
       Infrastructures.asAsyncCVTAT(cta)
 
@@ -264,21 +274,51 @@ module AsyncExtensions =
       s
 
 #if !NET45 && !NETSTANDARD1_6 && !NETCOREAPP2_0
+
+    /// <summary>
+    /// Seamless conversion from .NET Async disposer (IAsyncDisposable) to F# Async in Async workflow.
+    /// </summary>
+    /// <param name="disposable">.NET IAsyncDisposable</param>
+    /// <param name="body">use expression body</param>
+    /// <returns>F# Async instance.</returns>
+    member __.Using(disposable: 'T :> IAsyncDisposable, body: 'T -> Async<'R>) : Async<'R> =
+      Infrastructures.asAsyncAD(disposable, body)
+
     /// <summary>
     /// Seamless conversion from .NET Async sequence (IAsyncEnumerable&lt;'E&gt;) to F# Async in Async workflow.
     /// </summary>
-    /// <typeparam name="'E">Computation result element type</typeparam> 
+    /// <typeparam name="'E">The element type of the sequence</typeparam> 
     /// <param name="enumerable">.NET IAsyncEnumerable&lt;'E&gt; (expression result)</param>
+    /// <param name="body">for expression body</param>
     /// <returns>F# Async instance.</returns>
     member __.For(enumerable: IAsyncEnumerable<'E>, body: 'E -> Async<'R>) =
-      Infrastructures.asAsyncE(enumerable, body, None)
+      Infrastructures.asAsyncAE(enumerable, body, None)
+
+    /// <summary>
+    /// Seamless conversion from .NET Async sequence (IAsyncEnumerable&lt;'E&gt;) to F# Async in Async workflow.
+    /// </summary>
+    /// <typeparam name="'E">The element type of the sequence</typeparam> 
+    /// <param name="enumerable">.NET IAsyncEnumerable&lt;'E&gt; (expression result)</param>
+    /// <param name="body">for expression body</param>
+    /// <returns>F# Async instance.</returns>
+    member __.For(enumerable: ConfiguredCancelableAsyncEnumerable<'E>, body: 'E -> Async<'R>) =
+      Infrastructures.asAsyncCCAE(enumerable, body)
 
     /// <summary>
     /// Accept any async sequence type to support `for .. in` expressions in Async workflows.
     /// </summary>
     /// <typeparam name="'E">The element type of the sequence</typeparam> 
-    /// <param name="s">The sequence.</param>
+    /// <param name="enumerable">.NET IAsyncEnumerable&lt;'E&gt; (expression result)</param>
     /// <returns>The sequence.</returns>
-    member __.Source(s: IAsyncEnumerable<'E>) =
-      s
+    member __.Source(enumerable: IAsyncEnumerable<'E>) =
+      enumerable
+
+    /// <summary>
+    /// Accept any async sequence type to support `for .. in` expressions in Async workflows.
+    /// </summary>
+    /// <typeparam name="'E">The element type of the sequence</typeparam> 
+    /// <param name="enumerable">.NET ConfiguredCancelableAsyncEnumerable&lt;'E&gt; (expression result)</param>
+    /// <returns>The sequence.</returns>
+    member __.Source(enumerable: ConfiguredCancelableAsyncEnumerable<'E>) =
+      enumerable
 #endif

@@ -27,6 +27,8 @@ open System.Threading.Tasks
 
 open NUnit.Framework
 
+#nowarn "44"
+
 module AsyncExtensions =
 
   ////////////////////////////////////////////////////////////////////////
@@ -68,41 +70,6 @@ module AsyncExtensions =
     test.AsTask()
 
   [<Test>]
-  let AsyncBuilderAsAsyncCTATest() =
-    let test = async {
-      let r = Random()
-      let data = Seq.init 100000 (fun i -> 0uy) |> Seq.toArray
-      do r.NextBytes data
-      use ms = new MemoryStream()
-      let computation = async {
-          do! ms.WriteAsync(data, 0, data.Length).AsyncConfigure(false)
-        }
-      do! computation
-      Assert.AreEqual(data, ms.ToArray())
-    }
-    test.AsTask()
-    
-  [<Test>]
-  let AsyncBuilderAsAsyncCTATTest() =
-    let test = async {
-      let r = Random()
-      let data = Seq.init 100000 (fun i -> 0uy) |> Seq.toArray
-      do r.NextBytes data
-      let computation = async {
-          use ms = new MemoryStream()
-          do ms.Write(data, 0, data.Length)
-          do ms.Position <- 0L
-          let! length = ms.ReadAsync(data, 0, data.Length).AsyncConfigure(false)
-          Assert.AreEqual(data.Length, length)
-
-          return ms.ToArray()
-        }
-      let! results = computation
-      Assert.AreEqual(data, results)
-    }
-    test.AsTask()
-
-  [<Test>]
   let AsyncBuilderAsAsyncFromValueTaskTest() =
     let test = async {
       let r = Random()
@@ -132,41 +99,6 @@ module AsyncExtensions =
 
           return ms.ToArray()
       }
-      let! results = computation
-      Assert.AreEqual(data, results)
-    }
-    test.AsTask()
-
-  [<Test>]
-  let AsyncBuilderAsAsyncCVTATest() =
-    let test = async {
-      let r = Random()
-      let data = Seq.init 100000 (fun i -> 0uy) |> Seq.toArray
-      do r.NextBytes data
-      use ms = new MemoryStream()
-      let computation = async {
-          do! (new ValueTask(ms.WriteAsync(data, 0, data.Length))).AsyncConfigure(false)
-        }
-      do! computation
-      Assert.AreEqual(data, ms.ToArray())
-    }
-    test.AsTask()
-    
-  [<Test>]
-  let AsyncBuilderAsAsyncCVTATTest() =
-    let test = async {
-      let r = Random()
-      let data = Seq.init 100000 (fun i -> 0uy) |> Seq.toArray
-      do r.NextBytes data
-      let computation = async {
-          use ms = new MemoryStream()
-          do ms.Write(data, 0, data.Length)
-          do ms.Position <- 0L
-          let! length = (new ValueTask<int>(ms.ReadAsync(data, 0, data.Length))).AsyncConfigure(false)
-          Assert.AreEqual(data.Length, length)
-
-          return ms.ToArray()
-        }
       let! results = computation
       Assert.AreEqual(data, results)
     }
@@ -251,7 +183,80 @@ module AsyncExtensions =
   //      Assert.IsFalse flag
   //    }
   //  computation |> Async.RunSynchronously
-
+  
+  ////////////////////////////////////////////////////////////////////////
+  // Configured async monad.
+  
+  [<Test>]
+  let AsyncBuilderAsAsyncCTATest() =
+    let test = async {
+      let r = Random()
+      let data = Seq.init 100000 (fun i -> 0uy) |> Seq.toArray
+      do r.NextBytes data
+      use ms = new MemoryStream()
+      let computation = async {
+          do! ms.WriteAsync(data, 0, data.Length).AsyncConfigure(false)
+        }
+      do! computation
+      Assert.AreEqual(data, ms.ToArray())
+    }
+    test.AsTask()
+    
+  [<Test>]
+  let AsyncBuilderAsAsyncCTATTest() =
+    let test = async {
+      let r = Random()
+      let data = Seq.init 100000 (fun i -> 0uy) |> Seq.toArray
+      do r.NextBytes data
+      let computation = async {
+          use ms = new MemoryStream()
+          do ms.Write(data, 0, data.Length)
+          do ms.Position <- 0L
+          let! length = ms.ReadAsync(data, 0, data.Length).AsyncConfigure(false)
+          Assert.AreEqual(data.Length, length)
+  
+          return ms.ToArray()
+        }
+      let! results = computation
+      Assert.AreEqual(data, results)
+    }
+    test.AsTask()
+  
+  [<Test>]
+  let AsyncBuilderAsAsyncCVTATest() =
+    let test = async {
+      let r = Random()
+      let data = Seq.init 100000 (fun i -> 0uy) |> Seq.toArray
+      do r.NextBytes data
+      use ms = new MemoryStream()
+      let computation = async {
+          do! (new ValueTask(ms.WriteAsync(data, 0, data.Length))).AsyncConfigure(false)
+        }
+      do! computation
+      Assert.AreEqual(data, ms.ToArray())
+    }
+    test.AsTask()
+      
+  [<Test>]
+  let AsyncBuilderAsAsyncCVTATTest() =
+    let test = async {
+      let r = Random()
+      let data = Seq.init 100000 (fun i -> 0uy) |> Seq.toArray
+      do r.NextBytes data
+      let computation = async {
+          use ms = new MemoryStream()
+          do ms.Write(data, 0, data.Length)
+          do ms.Position <- 0L
+          let! length = (new ValueTask<int>(ms.ReadAsync(data, 0, data.Length))).AsyncConfigure(false)
+          Assert.AreEqual(data.Length, length)
+  
+          return ms.ToArray()
+        }
+      let! results = computation
+      Assert.AreEqual(data, results)
+    }
+    test.AsTask()
+  
   ////////////////////////////////////////////////////////////////////////
   // SynchronizationContext
 
@@ -275,21 +280,19 @@ module AsyncExtensions =
         do! Task.Delay 300
         let idAwaited2 = Thread.CurrentThread.ManagedThreadId
         Assert.AreEqual(id1, idAwaited2)
-        
-        context.Quit()
       }
-    computation |> Async.StartImmediate
-    context.Run()
+    context.Run(computation.AsTask())
 
   ////////////////////////////////////////////////////////////////////////
   // IAsyncEnumerable
+
+  let private delay = TimeSpan.FromMilliseconds 100.0
 
   [<Test>]
   let AsyncEnumerableIterationTest() =
     let computation = async {
       let values = [ 2; 5; 3; 7; 1 ]
       let results = new System.Collections.Generic.List<int>()
-      let delay = TimeSpan.FromMilliseconds 200.0
       for value in values.DelayEachAsync(delay) do
         results.Add value
         do! Async.Sleep delay
@@ -302,7 +305,6 @@ module AsyncExtensions =
     let computation = async {
       let values = [ 2; 5; 3; 7; 1 ]
       let results = new System.Collections.Generic.List<int>()
-      let delay = TimeSpan.FromMilliseconds 200.0
       for value in values.DelayEachAsync(delay) do
         results.Add value
       Assert.AreEqual(values, results)
@@ -314,7 +316,6 @@ module AsyncExtensions =
     let computation = async {
       let values = [ 2; 5; 3; 7; 1 ]
       let results = new System.Collections.Generic.List<int>()
-      let delay = TimeSpan.FromMilliseconds 200.0
       for value in values.AsAsyncEnumerable() do
         results.Add value
         do! Async.Sleep delay
@@ -327,7 +328,6 @@ module AsyncExtensions =
     let computation = async {
       let values = [ 2; 5; 3; 7; 1 ]
       let results = new System.Collections.Generic.List<int>()
-      let delay = TimeSpan.FromMilliseconds 200.0
       for value in values.AsAsyncEnumerable() do
         results.Add value
       Assert.AreEqual(values, results)
@@ -339,7 +339,6 @@ module AsyncExtensions =
     let computation = async {
       let values = [ 2; 5; 3; 7; 1 ]
       let results = new System.Collections.Generic.List<int>()
-      let delay = TimeSpan.FromMilliseconds 200.0
       let exn = new Exception()
       let mutable index = 0
       try
@@ -362,7 +361,6 @@ module AsyncExtensions =
     let computation = async {
       let values = [ 2; 5; 3; 7; 1 ]
       let results = new System.Collections.Generic.List<int>()
-      let delay = TimeSpan.FromMilliseconds 200.0
       let exn = new Exception()
       let mutable index = 0
       try
@@ -384,7 +382,6 @@ module AsyncExtensions =
     let computation = async {
       let values = [ 2; 5; 3; 7; 1 ]
       let results = new System.Collections.Generic.List<int>()
-      let delay = TimeSpan.FromMilliseconds 200.0
       let exn = new Exception()
       let mutable index = 0
       try
@@ -407,7 +404,6 @@ module AsyncExtensions =
     let computation = async {
       let values = [ 2; 5; 3; 7; 1 ]
       let results = new System.Collections.Generic.List<int>()
-      let delay = TimeSpan.FromMilliseconds 200.0
       let exn = new Exception()
       let mutable index = 0
       try
@@ -429,7 +425,6 @@ module AsyncExtensions =
     let computation = async {
       let values = [ 2; 5; 3; 7; 1 ]
       let results = new System.Collections.Generic.List<int>()
-      let delay = TimeSpan.FromMilliseconds 200.0
       try
         for value in values.WillThrowBefore() do
           results.Add value
@@ -447,7 +442,6 @@ module AsyncExtensions =
     let computation = async {
       let values = [ 2; 5; 3; 7; 1 ]
       let results = new System.Collections.Generic.List<int>()
-      let delay = TimeSpan.FromMilliseconds 200.0
       try
         for value in values.WillThrowAfter() do
           results.Add value
@@ -465,7 +459,6 @@ module AsyncExtensions =
     let computation = async {
       let values = [ 2; 5; 3; 7; 1 ]
       let results = new System.Collections.Generic.List<int>()
-      let delay = TimeSpan.FromMilliseconds 200.0
       try
         for value in values.WillThrowInterBefore() do
           results.Add value
@@ -483,7 +476,6 @@ module AsyncExtensions =
     let computation = async {
       let values = [ 2; 5; 3; 7; 1 ]
       let results = new System.Collections.Generic.List<int>()
-      let delay = TimeSpan.FromMilliseconds 200.0
       try
         for value in values.WillThrowInterAfter() do
           results.Add value
@@ -501,7 +493,6 @@ module AsyncExtensions =
     let computation = async {
       let values = [ 2; 5; 3; 7; 1 ]
       let results = new System.Collections.Generic.List<int>()
-      let delay = TimeSpan.FromMilliseconds 200.0
       let mutable called = false
       for value in values.HookAsyncEnumerable(fun () ->
           called <- true
@@ -518,7 +509,6 @@ module AsyncExtensions =
     let computation = async {
       let values = [ 2; 5; 3; 7; 1 ]
       let results = new System.Collections.Generic.List<int>()
-      let delay = TimeSpan.FromMilliseconds 200.0
       let mutable called = false
       for value in values.HookAsyncEnumerable(fun () ->
         new ValueTask(
@@ -537,7 +527,6 @@ module AsyncExtensions =
     let computation = async {
       let values = [ 2; 5; 3; 7; 1 ]
       let results = new System.Collections.Generic.List<int>()
-      let delay = TimeSpan.FromMilliseconds 200.0
       let exn = new Exception()
       try
         for value in values.HookAsyncEnumerable(fun () -> raise exn) do
@@ -556,7 +545,6 @@ module AsyncExtensions =
     let computation = async {
       let values = [ 2; 5; 3; 7; 1 ]
       let results = new System.Collections.Generic.List<int>()
-      let delay = TimeSpan.FromMilliseconds 200.0
       let exn = new Exception()
       try
         for value in values.HookAsyncEnumerable(fun () ->
@@ -573,3 +561,95 @@ module AsyncExtensions =
         Assert.AreEqual(values, results)
     }
     computation.AsTask()
+
+  [<TestCase(true)>]
+  [<TestCase(false)>]
+  let AsyncEnumerableIterationCaptureContextTest(capture: bool) =
+    let context = new ThreadBoundSynchronizationContext()
+    SynchronizationContext.SetSynchronizationContext context
+    let computation = async {
+      let values = [ 2; 5; 3; 7; 1 ]
+      let results = new System.Collections.Generic.List<int>()
+      let tid = Thread.CurrentThread.ManagedThreadId
+      for value in values.DelayEachAsync(delay).ConfigureAwait(capture) do
+        let tid2 = Thread.CurrentThread.ManagedThreadId
+        if capture then
+          Assert.AreEqual(tid, tid2)
+        else
+          Assert.AreNotEqual(tid, tid2)
+        results.Add value
+        do! Async.Sleep delay
+      let tid3 = Thread.CurrentThread.ManagedThreadId
+      if capture then
+        Assert.AreEqual(tid, tid3)
+      else
+        Assert.AreNotEqual(tid, tid3)
+      Assert.AreEqual(values, results)
+    }
+    context.Run(computation.AsTask())
+
+  ////////////////////////////////////////////////////////////////////////
+  // IAsyncDisposable
+
+  [<Test>]
+  let AsyncDisposableTest() =
+    let mutable index = 0
+    let computation = async {
+      let inner = async {
+        use _ = AsyncDisposableFactory.CreateDelegatedAsyncDisposable(fun () ->
+          (async {
+            do! Async.Sleep delay
+            index <- index + 1
+          }).AsTask())
+        Assert.AreEqual(0, index)
+        return ()
+      }
+      do! inner
+      Assert.AreEqual(1, index)
+    }
+    computation.AsTask()
+
+  [<Test>]
+  let AsyncDisposableThrowedTest() =
+    let ex = new Exception()
+    let computation = async {
+      let inner = async {
+        use _ = AsyncDisposableFactory.CreateDelegatedAsyncDisposable(fun () ->
+          (async {
+            do! Async.Sleep delay
+          }).AsTask())
+        raise ex
+        return ()
+      }
+      try
+        do! inner
+        Assert.Fail()
+      with
+      | exn -> Assert.AreSame(ex, exn)
+    }
+    computation.AsTask()
+
+  [<Test>]
+  let AsyncDisposableThrowedDisposingTest() =
+    let ex = new Exception()
+    let computation = async {
+      let inner = async {
+        use _ = AsyncDisposableFactory.CreateDelegatedAsyncDisposable(fun () ->
+          (async {
+            do! Async.Sleep delay
+            raise ex
+          }).AsTask())
+        return ()
+      }
+      try
+        do! inner
+        Assert.Fail()
+      with
+      | exn -> Assert.AreSame(ex, exn)
+    }
+    computation.AsTask()
+
+  //[<Test>]
+  //let AsyncDisposableCaptureContextTest() =
+    // In currently C#, lacks a feature for detaching synch context doing at just after asynchronous disposer.
+    // https://github.com/dotnet/csharplang/discussions/2661
