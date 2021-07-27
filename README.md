@@ -169,6 +169,22 @@ NOTE: `IAsyncEnumerable<T>` is supported only these environments:
 
 It limitation comes from [NuGet Microsoft.Bcl.AsyncInterfaces 5.0.0.](https://www.nuget.org/packages/Microsoft.Bcl.AsyncInterfaces/)
 
+### .NET standard asynchronous disposer IAsyncDisposable:
+
+``` fsharp
+let asyncTest = async {
+  // FusionTasks directly interpreted System.IAsyncDisposable in
+  // F# async-workflow use expression.
+  // TIP: We can use `use` expression instead of `use!`,
+  // Because the `use!` will be bound asynchronously BEFORE calling `DisposeAsync()`.
+  use accessor = DatabaseAccessor.getAsyncDisposableAccessor()
+
+  // (Use accessor...)
+
+  // (Will be disposed asynchronously, calls `DisposeAsync()` at end of scope...)
+}
+```
+
 ### TIPS: We have to add annotation for arguments if using it in async workflow:
 
 ``` fsharp
@@ -247,6 +263,10 @@ asyncSequenceData.AsTask().Dump()
 * Under Apache v2 http://www.apache.org/licenses/LICENSE-2.0
 
 ## History
+* 2.3.3:
+  * Supported .NET asynchronous disposer (`IAsyncDisposable`).
+  * Supported releasing synchronization context by `IAsyncEnumerable<T>.ConfigureAwait(bool)`.
+  * Fixed minor exception leaking at the continuation for asynchronous sequence.
 * 2.3.0:
   * Supported .NET asynchronous sequence (`IAsyncEnumerable` and essential types).
 * 2.2.0:
