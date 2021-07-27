@@ -588,13 +588,68 @@ module AsyncExtensions =
     }
     context.Run(computation.AsTask())
 
+  ////////////////////////////////////////////////////////////////////////
+  // IAsyncDisposable
+
   [<Test>]
   let AsyncDisposableTest() =
+    let mutable index = 0
     let computation = async {
-      use d = AsyncDisposableFactory.CreateDelegatedAsyncDisposable(fun () ->
-        (async {
-          do! Async.Sleep delay
-        }).AsTask())
-      return 0
+      let inner = async {
+        use _ = AsyncDisposableFactory.CreateDelegatedAsyncDisposable(fun () ->
+          (async {
+            do! Async.Sleep delay
+            index <- index + 1
+          }).AsTask())
+        Assert.AreEqual(0, index)
+        return ()
+      }
+      do! inner
+      Assert.AreEqual(1, index)
     }
     computation.AsTask()
+
+  [<Test>]
+  let AsyncDisposableThrowedTest() =
+    let ex = new Exception()
+    let computation = async {
+      let inner = async {
+        use _ = AsyncDisposableFactory.CreateDelegatedAsyncDisposable(fun () ->
+          (async {
+            do! Async.Sleep delay
+          }).AsTask())
+        raise ex
+        return ()
+      }
+      try
+        do! inner
+        Assert.Fail()
+      with
+      | exn -> Assert.AreSame(ex, exn)
+    }
+    computation.AsTask()
+
+  [<Test>]
+  let AsyncDisposableThrowedDisposingTest() =
+    let ex = new Exception()
+    let computation = async {
+      let inner = async {
+        use _ = AsyncDisposableFactory.CreateDelegatedAsyncDisposable(fun () ->
+          (async {
+            do! Async.Sleep delay
+            raise ex
+          }).AsTask())
+        return ()
+      }
+      try
+        do! inner
+        Assert.Fail()
+      with
+      | exn -> Assert.AreSame(ex, exn)
+    }
+    computation.AsTask()
+
+  //[<Test>]
+  //let AsyncDisposableCaptureContextTest() =
+    // In currently C#, lacks a feature for detaching synch context doing at just after asynchronous disposer.
+    // https://github.com/dotnet/csharplang/discussions/2661

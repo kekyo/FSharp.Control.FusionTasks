@@ -32,12 +32,12 @@ open System.Runtime.CompilerServices
 
 module internal Infrastructures =
 
-  let private (|IsFaulted|IsCanceled|IsCompleted|) (task: Task) =
+  let inline private (|IsFaulted|IsCanceled|IsCompleted|) (task: Task) =
     if task.IsFaulted then IsFaulted task.Exception
     else if task.IsCanceled then IsCanceled
     else IsCompleted
 
-  let private safeToken (ct: CancellationToken option) =
+  let inline private safeToken (ct: CancellationToken option) =
     match ct with
     | Some token -> token
     | None -> Async.DefaultCancellationToken
@@ -164,41 +164,65 @@ module internal Infrastructures =
 #if !NET45 && !NETSTANDARD1_6 && !NETCOREAPP2_0
 
   let private finallyAD (disposable: IAsyncDisposable) (continuation: unit -> unit) (caught: exn -> unit) =
-    let disposeAwaiter = disposable.DisposeAsync().GetAwaiter()
-    if disposeAwaiter.IsCompleted then
-      disposeAwaiter.GetResult()
-      continuation()
-    else
-      disposeAwaiter.OnCompleted(
-        fun () ->
-          try
-            disposeAwaiter.GetResult()
-            continuation()
-          with
-          | exn -> caught exn)
+    try
+      let disposeAwaiter = disposable.DisposeAsync().GetAwaiter()
+      if disposeAwaiter.IsCompleted then
+        disposeAwaiter.GetResult()
+        continuation()
+      else
+        disposeAwaiter.OnCompleted(
+          fun () ->
+            try
+              disposeAwaiter.GetResult()
+              continuation()
+            with
+            | exn -> caught exn)
+    with
+    | exn -> caught exn
 
   let private finallyCCAEE (disposable: ConfiguredCancelableAsyncEnumerable<'T>.Enumerator) (continuation: unit -> unit) (caught: exn -> unit) =
-    let disposeAwaiter = disposable.DisposeAsync().GetAwaiter()
-    if disposeAwaiter.IsCompleted then
-      disposeAwaiter.GetResult()
-      continuation()
-    else
-      disposeAwaiter.OnCompleted(
-        fun () ->
-          try
-            disposeAwaiter.GetResult()
-            continuation()
-          with
-          | exn -> caught exn)
+    try
+      let disposeAwaiter = disposable.DisposeAsync().GetAwaiter()
+      if disposeAwaiter.IsCompleted then
+        disposeAwaiter.GetResult()
+        continuation()
+      else
+        disposeAwaiter.OnCompleted(
+          fun () ->
+            try
+              disposeAwaiter.GetResult()
+              continuation()
+            with
+            | exn -> caught exn)
+    with
+    | exn -> caught exn
 
-  //let asyncD(disposable: 'T :> IAsyncDisposable, body: 'T -> Async<'R>) =
-  //  Async.FromContinuations(
-  //    fun (completed, caught, canceled) ->
-  //      finallyD disposable 
+  let asAsyncAD(disposable: 'T :> IAsyncDisposable, body: 'T -> Async<'R>) =
 
-  let asAsyncE(enumerable: IAsyncEnumerable<'T>, body: 'T -> Async<'U>, ct: CancellationToken option) =
+    let bodyAsync = body disposable
 
-    let checkCancellation() =
+    // Wrap asynchronous monad.
+    Async.FromContinuations(
+      fun (completed, caught, canceled) ->
+
+        // Finally handlers.
+        let completedContinuation value =
+          finallyAD disposable (fun () -> completed value) caught
+        let caughtContinuation exn =
+          finallyAD disposable (fun () -> caught exn) caught
+        let canceledContinuation exn =
+          finallyAD disposable (fun () -> canceled exn) caught
+
+        Async.StartWithContinuations(
+          bodyAsync,
+          // Got:
+          completedContinuation,
+          caughtContinuation,
+          canceledContinuation))
+
+  let asAsyncAE(enumerable: IAsyncEnumerable<'T>, body: 'T -> Async<'U>, ct: CancellationToken option) =
+
+    let inline checkCancellation() =
       if ct.IsSome then
         ct.Value.ThrowIfCancellationRequested()
 
