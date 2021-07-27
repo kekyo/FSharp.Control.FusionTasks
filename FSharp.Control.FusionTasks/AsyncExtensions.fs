@@ -274,6 +274,16 @@ module AsyncExtensions =
       s
 
 #if !NET45 && !NETSTANDARD1_6 && !NETCOREAPP2_0
+
+    /// <summary>
+    /// Seamless conversion from .NET Async disposer (IAsyncDisposable) to F# Async in Async workflow.
+    /// </summary>
+    /// <param name="disposable">.NET IAsyncDisposable</param>
+    /// <param name="body">use expression body</param>
+    /// <returns>F# Async instance.</returns>
+    member __.Using(disposable: 'T :> IAsyncDisposable, body: 'T -> Async<'R>) : Async<'R> =
+      Infrastructures.asAsyncAD(disposable, body)
+
     /// <summary>
     /// Seamless conversion from .NET Async sequence (IAsyncEnumerable&lt;'E&gt;) to F# Async in Async workflow.
     /// </summary>
@@ -282,7 +292,7 @@ module AsyncExtensions =
     /// <param name="body">for expression body</param>
     /// <returns>F# Async instance.</returns>
     member __.For(enumerable: IAsyncEnumerable<'E>, body: 'E -> Async<'R>) =
-      Infrastructures.asAsyncE(enumerable, body, None)
+      Infrastructures.asAsyncAE(enumerable, body, None)
 
     /// <summary>
     /// Seamless conversion from .NET Async sequence (IAsyncEnumerable&lt;'E&gt;) to F# Async in Async workflow.
@@ -307,7 +317,7 @@ module AsyncExtensions =
     /// Accept any async sequence type to support `for .. in` expressions in Async workflows.
     /// </summary>
     /// <typeparam name="'E">The element type of the sequence</typeparam> 
-    /// <param name="enumerable">.NET IAsyncEnumerable&lt;'E&gt; (expression result)</param>
+    /// <param name="enumerable">.NET ConfiguredCancelableAsyncEnumerable&lt;'E&gt; (expression result)</param>
     /// <returns>The sequence.</returns>
     member __.Source(enumerable: ConfiguredCancelableAsyncEnumerable<'E>) =
       enumerable
