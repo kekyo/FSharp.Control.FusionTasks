@@ -188,6 +188,77 @@ module AsyncExtensions =
   // Configured async monad.
   
   [<Test>]
+  let AsyncBuilderAsAsyncCTTest() =
+    let test = async {
+      let r = Random()
+      let data = Seq.init 100000 (fun i -> 0uy) |> Seq.toArray
+      do r.NextBytes data
+      use ms = new MemoryStream()
+      let computation = async {
+          do! ms.WriteAsync(data, 0, data.Length).ConfigureAwait(false)
+        }
+      do! computation
+      Assert.AreEqual(data, ms.ToArray())
+    }
+    test.AsTask()
+
+  [<Test>]
+  let AsyncBuilderAsAsyncCTTTest() =
+    let test = async {
+      let r = Random()
+      let data = Seq.init 100000 (fun i -> 0uy) |> Seq.toArray
+      do r.NextBytes data
+      let computation = async {
+          use ms = new MemoryStream()
+          do ms.Write(data, 0, data.Length)
+          do ms.Position <- 0L
+          let! length = ms.ReadAsync(data, 0, data.Length).ConfigureAwait(false)
+          Assert.AreEqual(data.Length, length)
+  
+          return ms.ToArray()
+        }
+      let! results = computation
+      Assert.AreEqual(data, results)
+    }
+    test.AsTask()
+    
+  [<Test>]
+  let AsyncBuilderAsAsyncCVTTest() =
+    let test = async {
+      let r = Random()
+      let data = Seq.init 100000 (fun i -> 0uy) |> Seq.toArray
+      do r.NextBytes data
+      use ms = new MemoryStream()
+      let computation = async {
+          do! (new ValueTask(ms.WriteAsync(data, 0, data.Length))).ConfigureAwait(false)
+        }
+      do! computation
+      Assert.AreEqual(data, ms.ToArray())
+    }
+    test.AsTask()
+    
+  [<Test>]
+  let AsyncBuilderAsAsyncCVTTTest() =
+    let test = async {
+      let r = Random()
+      let data = Seq.init 100000 (fun i -> 0uy) |> Seq.toArray
+      do r.NextBytes data
+      let computation = async {
+          use ms = new MemoryStream()
+          do ms.Write(data, 0, data.Length)
+          do ms.Position <- 0L
+          let! length = (new ValueTask<int>(ms.ReadAsync(data, 0, data.Length))).ConfigureAwait(false)
+          Assert.AreEqual(data.Length, length)
+  
+          return ms.ToArray()
+        }
+      let! results = computation
+      Assert.AreEqual(data, results)
+    }
+    test.AsTask()
+
+  [<Test>]
+  [<Obsolete>]
   let AsyncBuilderAsAsyncCTATest() =
     let test = async {
       let r = Random()
@@ -203,6 +274,7 @@ module AsyncExtensions =
     test.AsTask()
     
   [<Test>]
+  [<Obsolete>]
   let AsyncBuilderAsAsyncCTATTest() =
     let test = async {
       let r = Random()
@@ -223,6 +295,7 @@ module AsyncExtensions =
     test.AsTask()
   
   [<Test>]
+  [<Obsolete>]
   let AsyncBuilderAsAsyncCVTATest() =
     let test = async {
       let r = Random()
@@ -238,6 +311,7 @@ module AsyncExtensions =
     test.AsTask()
       
   [<Test>]
+  [<Obsolete>]
   let AsyncBuilderAsAsyncCVTATTest() =
     let test = async {
       let r = Random()
