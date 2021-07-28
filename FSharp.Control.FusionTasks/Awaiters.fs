@@ -24,7 +24,9 @@ open System.Threading
 open System.Threading.Tasks
 open System.Runtime.CompilerServices
 
-// Provide Awaitable/Awaiter on custom codes:
+#nowarn "44"
+
+// Provide Awaitable/Awaiter on custom code:
 //   PCL's Awaitable/Awaiter on "Microsoft.Runtime.CompilerServices",
 //   but not decorated TypeForwardedTo attributes.
 //   So if referenced Awaitable/Awaiter types, cause cannot found Awaitable/Awaiter types.
@@ -69,6 +71,7 @@ type AsyncAwaiter<'T> internal (ta: TaskAwaiter<'T>) =
 /// F# Async's awaiter implementation. This structure using implicitly.
 /// </summary>
 [<Struct; NoEquality; NoComparison; AutoSerializable(false)>]
+[<Obsolete("AsyncConfigure is compatibility on PCL environment. Use ConfigureAwait instead.")>]
 type ConfiguredTaskAsyncAwaiter internal (ctacta: ConfiguredTaskAwaitable.ConfiguredTaskAwaiter) =
 
     member __.IsCompleted = ctacta.IsCompleted
@@ -92,6 +95,7 @@ type ConfiguredTaskAsyncAwaitable internal (cta: ConfiguredTaskAwaitable) =
 /// F# Async's awaiter implementation. This structure using implicitly.
 /// </summary>
 [<Struct; NoEquality; NoComparison; AutoSerializable(false)>]
+[<Obsolete("AsyncConfigure is compatibility on PCL environment. Use ConfigureAwait instead.")>]
 type ConfiguredTaskAsyncAwaiter<'T> internal (ctacta: ConfiguredTaskAwaitable<'T>.ConfiguredTaskAwaiter) =
 
     member __.IsCompleted = ctacta.IsCompleted
@@ -118,6 +122,7 @@ type ConfiguredTaskAsyncAwaitable<'T> internal (cta: ConfiguredTaskAwaitable<'T>
 /// F# Async's awaiter implementation. This structure using implicitly.
 /// </summary>
 [<Struct; NoEquality; NoComparison; AutoSerializable(false)>]
+[<Obsolete("AsyncConfigure is compatibility on PCL environment. Use ConfigureAwait instead.")>]
 type ConfiguredValueTaskAsyncAwaiter internal (ctacta: ConfiguredValueTaskAwaitable.ConfiguredValueTaskAwaiter) =
 
     member __.IsCompleted = ctacta.IsCompleted
@@ -141,6 +146,7 @@ type ConfiguredValueTaskAsyncAwaitable internal (cta: ConfiguredValueTaskAwaitab
 /// F# Async's awaiter implementation. This structure using implicitly.
 /// </summary>
 [<Struct; NoEquality; NoComparison; AutoSerializable(false)>]
+[<Obsolete("AsyncConfigure is compatibility on PCL environment. Use ConfigureAwait instead.")>]
 type ConfiguredValueTaskAsyncAwaiter<'T> internal (ctacta: ConfiguredValueTaskAwaitable<'T>.ConfiguredValueTaskAwaiter) =
 
     member __.IsCompleted = ctacta.IsCompleted

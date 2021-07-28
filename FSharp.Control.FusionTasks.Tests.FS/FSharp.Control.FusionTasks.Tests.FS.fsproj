@@ -36,7 +36,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="AsyncExtensionsTests.fs" />
+    <Compile Include="ConfiguredTests.fs" />
+    <Compile Include="OperatorTests.fs" />
+    <Compile Include="BasisTests.fs" />
+    <Compile Include="AsyncSequneceTests.fs" />
   </ItemGroup>
 
 </Project>

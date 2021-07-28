@@ -55,6 +55,77 @@ module AsyncExtensions =
     static member AsTask(async: Async<'T>, ?token: CancellationToken) =
       Infrastructures.asTaskT(async, token)
 
+    ////////////////////////////////////////////////////////////////////
+    // Operators
+    
+    /// <summary>
+    /// Seamless conversion operator from .NET Task to F# Async.
+    /// </summary>
+    /// <param name="task">.NET Task instance</param>
+    /// <returns>F# Async</returns>
+    static member AsAsync (task: Task) =
+      Infrastructures.asAsync(task, None)
+
+    /// <summary>
+    /// Seamless conversion operator from .NET Task to F# Async.
+    /// </summary>
+    /// <typeparam name="'T">Computation result type</typeparam> 
+    /// <param name="task">.NET Task instance</param>
+    /// <returns>F# Async</returns>
+    static member AsAsync (task: Task<'T>) =
+      Infrastructures.asAsyncT(task, None)
+
+    /// <summary>
+    /// Seamless conversion operator from .NET ValueTask to F# Async.
+    /// </summary>
+    /// <param name="task">.NET ValueTask instance</param>
+    /// <returns>F# Async</returns>
+    static member AsAsync (task: ValueTask) =
+      Infrastructures.asAsyncV(task, None)
+
+    /// <summary>
+    /// Seamless conversion operator from .NET ValueTask to F# Async.
+    /// </summary>
+    /// <typeparam name="'T">Computation result type</typeparam> 
+    /// <param name="task">.NET ValueTask instance</param>
+    /// <returns>F# Async</returns>
+    static member AsAsync (task: ValueTask<'T>) =
+      Infrastructures.asAsyncVT(task, None)
+
+    /// <summary>
+    /// Seamless conversion operator from .NET Task to F# Async.
+    /// </summary>
+    /// <param name="ct">.NET Configured Task instance</param>
+    /// <returns>F# Async</returns>
+    static member AsAsync (ct: ConfiguredTaskAwaitable) =
+      Infrastructures.asAsyncCT(ct)
+
+    /// <summary>
+    /// Seamless conversion operator from .NET Task to F# Async.
+    /// </summary>
+    /// <typeparam name="'T">Computation result type</typeparam> 
+    /// <param name="ctt">.NET Configured Task instance</param>
+    /// <returns>F# Async</returns>
+    static member AsAsync (ctt: ConfiguredTaskAwaitable<'T>) =
+      Infrastructures.asAsyncCTT(ctt)
+
+    /// <summary>
+    /// Seamless conversion operator from .NET ValueTask to F# Async.
+    /// </summary>
+    /// <param name="cvt">.NET Configured ValueTask instance</param>
+    /// <returns>F# Async</returns>
+    static member AsAsync (cvt: ConfiguredValueTaskAwaitable) =
+      Infrastructures.asAsyncCVT(cvt)
+
+    /// <summary>
+    /// Seamless conversion operator from .NET ValueTask to F# Async.
+    /// </summary>
+    /// <typeparam name="'T">Computation result type</typeparam> 
+    /// <param name="cvtt">.NET Configured ValueTask instance</param>
+    /// <returns>F# Async</returns>
+    static member AsAsync (cvtt: ConfiguredValueTaskAwaitable<'T>) =
+      Infrastructures.asAsyncCVTT(cvtt)
+
   ///////////////////////////////////////////////////////////////////////////////////
   // F# side Task class extensions.
 
@@ -147,6 +218,7 @@ module AsyncExtensions =
     /// Seamless conversion from .NET Task to F# Async.
     /// </summary>
     /// <returns>F# Async instance.</returns>
+    [<Obsolete("AsyncConfigure is compatibility on PCL environment. Use ConfigureAwait instead.")>]
     member cta.AsAsync() =
       Infrastructures.asAsyncCTA(cta)
  
@@ -157,6 +229,7 @@ module AsyncExtensions =
     /// </summary>
     /// <typeparam name="'T">Computation result type</typeparam> 
     /// <returns>F# Async instance.</returns>
+    [<Obsolete("AsyncConfigure is compatibility on PCL environment. Use ConfigureAwait instead.")>]
     member cta.AsAsync() =
       Infrastructures.asAsyncCTAT(cta)
 
@@ -166,6 +239,7 @@ module AsyncExtensions =
     /// Seamless conversion from .NET Task to F# Async.
     /// </summary>
     /// <returns>F# Async instance.</returns>
+    [<Obsolete("AsyncConfigure is compatibility on PCL environment. Use ConfigureAwait instead.")>]
     member cta.AsAsync() =
       Infrastructures.asAsyncCVTA(cta)
 
@@ -176,6 +250,7 @@ module AsyncExtensions =
     /// </summary>
     /// <typeparam name="'T">Computation result type</typeparam> 
     /// <returns>F# Async instance.</returns>
+    [<Obsolete("AsyncConfigure is compatibility on PCL environment. Use ConfigureAwait instead.")>]
     member cta.AsAsync() =
       Infrastructures.asAsyncCVTAT(cta)
 
@@ -208,11 +283,71 @@ module AsyncExtensions =
     /// <returns>F# Async instance.</returns>
     member __.Source(task: Task<'T>) =
       Infrastructures.asAsyncT(task, None)
+      
+    /// <summary>
+    /// Seamless conversion from .NET Task to F# Async in Async workflow.
+    /// </summary>
+    /// <param name="ct">.NET ConfiguredTaskAwaitable (expr.ConfigureAwait(...))</param>
+    /// <returns>F# Async instance.</returns>
+    member __.Source(ct: ConfiguredTaskAwaitable) =
+      Infrastructures.asAsyncCT(ct)
 
     /// <summary>
     /// Seamless conversion from .NET Task to F# Async in Async workflow.
     /// </summary>
-    /// <param name="cta">.NET ConfiguredTaskAwaitable (expr.ConfigureAwait(...))</param>
+    /// <typeparam name="'T">Computation result type</typeparam> 
+    /// <param name="ctt">.NET ConfiguredTaskAwaitable&lt;'T&gt; (expr.ConfigureAwait(...))</param>
+    /// <returns>F# Async instance.</returns>
+    member __.Source(ctt: ConfiguredTaskAwaitable<'T>) =
+      Infrastructures.asAsyncCTT(ctt)
+      
+    /// <summary>
+    /// Seamless conversion from .NET Task to F# Async in Async workflow.
+    /// </summary>
+    /// <param name="task">.NET ValueTask (expression result)</param>
+    /// <returns>F# Async instance.</returns>
+    member __.Source(task: ValueTask) =
+      Infrastructures.asAsyncV(task, None)
+      
+    /// <summary>
+    /// Seamless conversion from .NET Task to F# Async in Async workflow.
+    /// </summary>
+    /// <typeparam name="'T">Computation result type</typeparam> 
+    /// <param name="task">.NET ValueTask&lt;'T&gt; (expression result)</param>
+    /// <returns>F# Async instance.</returns>
+    member __.Source(task: ValueTask<'T>) =
+      Infrastructures.asAsyncVT(task, None)
+
+    /// <summary>
+    /// Seamless conversion from .NET Task to F# Async in Async workflow.
+    /// </summary>
+    /// <param name="cvt">.NET ConfiguredValueTaskAwaitable (expr.ConfigureAwait(...))</param>
+    /// <returns>F# Async instance.</returns>
+    member __.Source(cvt: ConfiguredValueTaskAwaitable) =
+      Infrastructures.asAsyncCVT(cvt)
+      
+    /// <summary>
+    /// Seamless conversion from .NET Task to F# Async in Async workflow.
+    /// </summary>
+    /// <typeparam name="'T">Computation result type</typeparam> 
+    /// <param name="cvtt">.NET ConfiguredValueTaskAwaitable&lt;'T&gt; (expr.ConfigureAwait(...))</param>
+    /// <returns>F# Async instance.</returns>
+    member __.Source(cvtt: ConfiguredValueTaskAwaitable<'T>) =
+      Infrastructures.asAsyncCVTT(cvtt)
+      
+    /// <summary>
+    /// Accept any sequence type to support `for .. in` expressions in Async workflows.
+    /// </summary>
+    /// <typeparam name="'E">The element type of the sequence</typeparam> 
+    /// <param name="s">The sequence.</param>
+    /// <returns>The sequence.</returns>
+    member __.Source(s: 'E seq) =
+      s
+
+    /// <summary>
+    /// Seamless conversion from .NET Task to F# Async in Async workflow.
+    /// </summary>
+    /// <param name="cta">.NET ConfiguredTaskAsyncAwaitable (expr.AsyncConfigure(...))</param>
     /// <returns>F# Async instance.</returns>
     [<Obsolete("AsyncConfigure is compatibility on PCL environment. Use ConfigureAwait instead.")>]
     member __.Source(cta: ConfiguredTaskAsyncAwaitable) =
@@ -222,56 +357,30 @@ module AsyncExtensions =
     /// Seamless conversion from .NET Task to F# Async in Async workflow.
     /// </summary>
     /// <typeparam name="'T">Computation result type</typeparam> 
-    /// <param name="cta">.NET ConfiguredTaskAwaitable&lt;'T&gt; (expr.ConfigureAwait(...))</param>
+    /// <param name="cta">.NET ConfiguredTaskAsyncAwaitable&lt;'T&gt; (expr.AsyncConfigure(...))</param>
     /// <returns>F# Async instance.</returns>
     [<Obsolete("AsyncConfigure is compatibility on PCL environment. Use ConfigureAwait instead.")>]
     member __.Source(cta: ConfiguredTaskAsyncAwaitable<'T>) =
       Infrastructures.asAsyncCTAT(cta)
-
-    /// <summary>
-    /// Seamless conversion from .NET Task to F# Async in Async workflow.
-    /// </summary>
-    /// <param name="task">.NET ValueTask (expression result)</param>
-    /// <returns>F# Async instance.</returns>
-    member __.Source(task: ValueTask) =
-      Infrastructures.asAsyncV(task, None)
  
     /// <summary>
     /// Seamless conversion from .NET Task to F# Async in Async workflow.
     /// </summary>
-    /// <param name="cta">.NET ConfiguredValueTaskAwaitable (expr.ConfigureAwait(...))</param>
+    /// <param name="cta">.NET ConfiguredValueTaskAsyncAwaitable (expr.AsyncConfigure(...))</param>
     /// <returns>F# Async instance.</returns>
     [<Obsolete("AsyncConfigure is compatibility on PCL environment. Use ConfigureAwait instead.")>]
     member __.Source(cta: ConfiguredValueTaskAsyncAwaitable) =
       Infrastructures.asAsyncCVTA(cta)
-
-    /// <summary>
-    /// Seamless conversion from .NET Task to F# Async in Async workflow.
-    /// </summary>
-    /// <typeparam name="'T">Computation result type</typeparam> 
-    /// <param name="task">.NET ValueTask&lt;'T&gt; (expression result)</param>
-    /// <returns>F# Async instance.</returns>
-    member __.Source(task: ValueTask<'T>) =
-      Infrastructures.asAsyncVT(task, None)
  
     /// <summary>
     /// Seamless conversion from .NET Task to F# Async in Async workflow.
     /// </summary>
     /// <typeparam name="'T">Computation result type</typeparam> 
-    /// <param name="cta">.NET ConfiguredValueTaskAwaitable&lt;'T&gt; (expr.ConfigureAwait(...))</param>
+    /// <param name="cta">.NET ConfiguredValueTaskAsyncAwaitable&lt;'T&gt; (expr.AsyncConfigure(...))</param>
     /// <returns>F# Async instance.</returns>
     [<Obsolete("AsyncConfigure is compatibility on PCL environment. Use ConfigureAwait instead.")>]
     member __.Source(cta: ConfiguredValueTaskAsyncAwaitable<'T>) =
       Infrastructures.asAsyncCVTAT(cta)
-
-    /// <summary>
-    /// Accept any sequence type to support `for .. in` expressions in Async workflows.
-    /// </summary>
-    /// <typeparam name="'E">The element type of the sequence</typeparam> 
-    /// <param name="s">The sequence.</param>
-    /// <returns>The sequence.</returns>
-    member __.Source(s: 'E seq) =
-      s
 
 #if !NET45 && !NETSTANDARD1_6 && !NETCOREAPP2_0
 
