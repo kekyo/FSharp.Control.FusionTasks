@@ -55,7 +55,7 @@ module AsyncExtensions =
     static member AsTask(async: Async<'T>, ?token: CancellationToken) =
       Infrastructures.asTaskT(async, token)
 
-    ///////////////////////////
+    ////////////////////////////////////////////////////////////////////
     // Operators
     
     /// <summary>
@@ -125,15 +125,6 @@ module AsyncExtensions =
     /// <returns>F# Async</returns>
     static member AsAsync (cvtt: ConfiguredValueTaskAwaitable<'T>) =
       Infrastructures.asAsyncCVTT(cvtt)
-
-    /// <summary>
-    /// Seamless conversion operator from .NET Task to F# Async.
-    /// </summary>
-    /// <param name="token">Cancellation token (optional)</param>
-    /// <param name="task">.NET Task instance</param>
-    /// <returns>F# Async</returns>
-    static member AsAsyncWithCancellation (token: CancellationToken) (task: Task) =
-      Infrastructures.asAsync(task, Some token)
 
   ///////////////////////////////////////////////////////////////////////////////////
   // F# side Task class extensions.
