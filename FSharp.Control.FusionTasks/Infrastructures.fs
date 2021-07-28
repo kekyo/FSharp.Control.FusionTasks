@@ -119,6 +119,49 @@ module internal Infrastructures =
               scheduler)
           |> ignore)
 
+  let asAsyncCT(ct: ConfiguredTaskAwaitable) =
+    Async.FromContinuations(
+      fun (completed, caught, _) ->
+        let awaiter = ct.GetAwaiter()
+        awaiter.OnCompleted(
+          new Action(fun _ ->
+            try
+              awaiter.GetResult()
+              completed()
+            with exn -> caught(exn)))
+        |> ignore)
+
+  let asAsyncCTT(cta: ConfiguredTaskAwaitable<'T>) =
+    Async.FromContinuations(
+      fun (completed, caught, _) ->
+        let awaiter = cta.GetAwaiter()
+        awaiter.OnCompleted(
+          new Action(fun _ ->
+            try completed(awaiter.GetResult())
+            with exn -> caught(exn)))
+        |> ignore)
+
+  let asAsyncCVT(cvt: ConfiguredValueTaskAwaitable) =
+    Async.FromContinuations(
+      fun (completed, caught, _) ->
+        let awaiter = cvt.GetAwaiter()
+        awaiter.OnCompleted(
+          new Action(fun _ ->
+            try completed(awaiter.GetResult())
+            with exn -> caught(exn)))
+        |> ignore)
+        
+  let asAsyncCVTT(cvtt: ConfiguredValueTaskAwaitable<'T>) =
+    Async.FromContinuations(
+      fun (completed, caught, _) ->
+        let awaiter = cvtt.GetAwaiter()
+        awaiter.OnCompleted(
+          new Action(fun _ ->
+            try completed(awaiter.GetResult())
+            with exn -> caught(exn)))
+        |> ignore)
+
+  [<Obsolete>]
   let asAsyncCTA(cta: ConfiguredTaskAsyncAwaitable) =
     Async.FromContinuations(
       fun (completed, caught, _) ->
@@ -131,6 +174,7 @@ module internal Infrastructures =
             with exn -> caught(exn)))
         |> ignore)
 
+  [<Obsolete>]
   let asAsyncCTAT(cta: ConfiguredTaskAsyncAwaitable<'T>) =
     Async.FromContinuations(
       fun (completed, caught, _) ->
@@ -141,6 +185,7 @@ module internal Infrastructures =
             with exn -> caught(exn)))
         |> ignore)
 
+  [<Obsolete>]
   let asAsyncCVTA(cta: ConfiguredValueTaskAsyncAwaitable) =
     Async.FromContinuations(
       fun (completed, caught, _) ->
@@ -151,6 +196,7 @@ module internal Infrastructures =
             with exn -> caught(exn)))
         |> ignore)
 
+  [<Obsolete>]
   let asAsyncCVTAT(cta: ConfiguredValueTaskAsyncAwaitable<'T>) =
     Async.FromContinuations(
       fun (completed, caught, _) ->
