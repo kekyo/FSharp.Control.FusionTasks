@@ -92,8 +92,9 @@ let asyncTest = async {
 ``` fsharp
 use ms = new MemoryStream()
 
-// Manually conversion by "AsAsync" : Task<T> --> Async<'T>
-let length = ms.ReadAsync(data, 0, data.Length).AsAsync() |> Async.RunSynchronosly
+// Manually conversion by an operator "Async.AsAsync" : Task<T> --> Async<'T>
+let asy = ms.ReadAsync(data, 0, data.Length) |> Async.AsAsync
+let length = asy |> Async.RunSynchronosly
 ```
 
 ### Without async workflow (CancellationToken):
@@ -106,7 +107,8 @@ let cts = new CancellationTokenSource()
 // TIPS: FusionTasks cannot handle directly CancellationToken IN ASYNC WORKFLOW.
 //   Because async workflow semantics implicitly handled CancellationToken with Async.DefaultCancellationToken, CancellationToken and CancelDefaultToken().
 //   (CancellationToken derived from Async.StartWithContinuations() in async workflow.)
-let length = ms.ReadAsync(data, 0, data.Length).AsAsync(cts.Token) |> Async.RunSynchronosly
+let asy = ms.ReadAsync(data, 0, data.Length).AsAsync(cts.Token)
+let length = asy |> Async.RunSynchronosly
 ```
 
 ### Handle Task.ConfigureAwait(...)  (Capture/release SynchContext):
@@ -115,7 +117,7 @@ let length = ms.ReadAsync(data, 0, data.Length).AsAsync(cts.Token) |> Async.RunS
 let asyncTest = async {
   use ms = new MemoryStream(...)
 
-  // We can use ConfigureAwait() on let!.
+  // We can use ConfigureAwait() on let!/do!.
   let! length = ms.ReadAsync(data, 0, data.Length).ConfigureAwait(false)
 }
 ```
@@ -144,7 +146,7 @@ let asyncCalculate() =
   acs.Async
 ```
 
-### .NET standard asynchronous sequence IAsyncEnumerable&lt;T&gt;:
+### Standard asynchronous sequence IAsyncEnumerable&lt;T&gt;:
 
 ``` fsharp
 let asyncTest = async {
@@ -169,7 +171,7 @@ NOTE: `IAsyncEnumerable<T>` is supported only these environments:
 
 It limitation comes from [NuGet Microsoft.Bcl.AsyncInterfaces 5.0.0.](https://www.nuget.org/packages/Microsoft.Bcl.AsyncInterfaces/)
 
-### .NET standard asynchronous disposer IAsyncDisposable:
+### Standard asynchronous disposer IAsyncDisposable:
 
 ``` fsharp
 let asyncTest = async {
@@ -238,7 +240,7 @@ asyncSequenceData.AsTask().Dump()
 * ValueTask overview:
   * New standard "task-like" type named for "ValueTask&lt;T&gt;" for C#. FusionTasks supported ValueTask&lt;T&gt; on 1.0.20.
   * ValueTask&lt;T&gt; declared by struct (Value type) for goal is improvement performance. But this type has the Task&lt;T&gt; instance inside and finally continuation handle by Task&lt;T&gt;.
-  * ValueTask&lt;T&gt; performance effective situation maybe chatty-call fragments using both caller C# and awaiter C# codes...
+  * ValueTask&lt;T&gt; performance effective situation maybe chatty-call fragments using both caller C# and awaiter C# code...
   * ValueTask&lt;T&gt; a little bit or no effect improvement performance, because usage of senario for FusionTasks.
 * "task-like" augumenting is difficult:
   * We have to apply to task-like type with the attribute "AsyncMethodBuilderAttribute".
@@ -263,6 +265,9 @@ asyncSequenceData.AsTask().Dump()
 * Under Apache v2 http://www.apache.org/licenses/LICENSE-2.0
 
 ## History
+* 2.4.0:
+  * Supported varies for operator `Async.AsAsync`.
+  * Completed supporting configured capturing context method `ConfigureAwait(bool)` on all Task based instances.
 * 2.3.3:
   * Supported .NET asynchronous disposer (`IAsyncDisposable`).
   * Supported releasing synchronization context by `IAsyncEnumerable<T>.ConfigureAwait(bool)`.
