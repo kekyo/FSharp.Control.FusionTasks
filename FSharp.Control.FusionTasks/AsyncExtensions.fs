@@ -55,6 +55,86 @@ module AsyncExtensions =
     static member AsTask(async: Async<'T>, ?token: CancellationToken) =
       Infrastructures.asTaskT(async, token)
 
+    ///////////////////////////
+    // Operators
+    
+    /// <summary>
+    /// Seamless conversion operator from .NET Task to F# Async.
+    /// </summary>
+    /// <param name="task">.NET Task instance</param>
+    /// <returns>F# Async</returns>
+    static member AsAsync (task: Task) =
+      Infrastructures.asAsync(task, None)
+
+    /// <summary>
+    /// Seamless conversion operator from .NET Task to F# Async.
+    /// </summary>
+    /// <typeparam name="'T">Computation result type</typeparam> 
+    /// <param name="task">.NET Task instance</param>
+    /// <returns>F# Async</returns>
+    static member AsAsync (task: Task<'T>) =
+      Infrastructures.asAsyncT(task, None)
+
+    /// <summary>
+    /// Seamless conversion operator from .NET ValueTask to F# Async.
+    /// </summary>
+    /// <param name="task">.NET ValueTask instance</param>
+    /// <returns>F# Async</returns>
+    static member AsAsync (task: ValueTask) =
+      Infrastructures.asAsyncV(task, None)
+
+    /// <summary>
+    /// Seamless conversion operator from .NET ValueTask to F# Async.
+    /// </summary>
+    /// <typeparam name="'T">Computation result type</typeparam> 
+    /// <param name="task">.NET ValueTask instance</param>
+    /// <returns>F# Async</returns>
+    static member AsAsync (task: ValueTask<'T>) =
+      Infrastructures.asAsyncVT(task, None)
+
+    /// <summary>
+    /// Seamless conversion operator from .NET Task to F# Async.
+    /// </summary>
+    /// <param name="ct">.NET Configured Task instance</param>
+    /// <returns>F# Async</returns>
+    static member AsAsync (ct: ConfiguredTaskAwaitable) =
+      Infrastructures.asAsyncCT(ct)
+
+    /// <summary>
+    /// Seamless conversion operator from .NET Task to F# Async.
+    /// </summary>
+    /// <typeparam name="'T">Computation result type</typeparam> 
+    /// <param name="ctt">.NET Configured Task instance</param>
+    /// <returns>F# Async</returns>
+    static member AsAsync (ctt: ConfiguredTaskAwaitable<'T>) =
+      Infrastructures.asAsyncCTT(ctt)
+
+    /// <summary>
+    /// Seamless conversion operator from .NET ValueTask to F# Async.
+    /// </summary>
+    /// <param name="cvt">.NET Configured ValueTask instance</param>
+    /// <returns>F# Async</returns>
+    static member AsAsync (cvt: ConfiguredValueTaskAwaitable) =
+      Infrastructures.asAsyncCVT(cvt)
+
+    /// <summary>
+    /// Seamless conversion operator from .NET ValueTask to F# Async.
+    /// </summary>
+    /// <typeparam name="'T">Computation result type</typeparam> 
+    /// <param name="cvtt">.NET Configured ValueTask instance</param>
+    /// <returns>F# Async</returns>
+    static member AsAsync (cvtt: ConfiguredValueTaskAwaitable<'T>) =
+      Infrastructures.asAsyncCVTT(cvtt)
+
+    /// <summary>
+    /// Seamless conversion operator from .NET Task to F# Async.
+    /// </summary>
+    /// <param name="token">Cancellation token (optional)</param>
+    /// <param name="task">.NET Task instance</param>
+    /// <returns>F# Async</returns>
+    static member AsAsyncWithCancellation (token: CancellationToken) (task: Task) =
+      Infrastructures.asAsync(task, Some token)
+
   ///////////////////////////////////////////////////////////////////////////////////
   // F# side Task class extensions.
 

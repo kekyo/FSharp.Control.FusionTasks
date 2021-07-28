@@ -185,6 +185,151 @@ module AsyncExtensions =
   //  computation |> Async.RunSynchronously
   
   ////////////////////////////////////////////////////////////////////////
+  // Explicitly operators
+
+  [<Test>]
+  let OperatorAsAsyncFromTaskTest() =
+    let test = async {
+      let r = Random()
+      let data = Seq.init 100000 (fun i -> 0uy) |> Seq.toArray
+      do r.NextBytes data
+      use ms = new MemoryStream()
+      let computation = async {
+          do! ms.WriteAsync(data, 0, data.Length) |> Async.AsAsync
+          Assert.AreEqual(data, ms.ToArray())
+      }
+      do! computation
+    }
+    test.AsTask()
+
+  [<Test>]
+  let OperatorAsAsyncFromTaskTTest() =
+    let test = async {
+      let r = Random()
+      let data = Seq.init 100000 (fun i -> 0uy) |> Seq.toArray
+      do r.NextBytes data
+      let computation = async {
+        use ms = new MemoryStream()
+        do ms.Write(data, 0, data.Length)
+        do ms.Position <- 0L
+        let! length = ms.ReadAsync(data, 0, data.Length) |> Async.AsAsync
+        Assert.AreEqual(data.Length, length)
+      
+        return ms.ToArray()
+      }
+      let! results = computation
+      Assert.AreEqual(data, results)
+    }
+    test.AsTask()
+
+  [<Test>]
+  let OperatorAsAsyncFromValueTaskTest() =
+    let test = async {
+      let r = Random()
+      let data = Seq.init 100000 (fun i -> 0uy) |> Seq.toArray
+      do r.NextBytes data
+      use ms = new MemoryStream()
+      let computation = async {
+          do! new ValueTask(ms.WriteAsync(data, 0, data.Length)) |> Async.AsAsync
+          Assert.AreEqual(data, ms.ToArray())
+      }
+      do! computation
+    }
+    test.AsTask()
+
+  [<Test>]
+  let OperatorAsAsyncFromValueTaskTTest() =
+    let test = async {
+      let r = Random()
+      let data = Seq.init 100000 (fun i -> 0uy) |> Seq.toArray
+      do r.NextBytes data
+      let computation = async {
+        use ms = new MemoryStream()
+        do ms.Write(data, 0, data.Length)
+        do ms.Position <- 0L
+        let! length = new ValueTask<int>(ms.ReadAsync(data, 0, data.Length)) |> Async.AsAsync
+        Assert.AreEqual(data.Length, length)
+    
+        return ms.ToArray()
+      }
+      let! results = computation
+      Assert.AreEqual(data, results)
+    }
+    test.AsTask()
+    
+  [<Test>]
+  let OperatorAsAsyncFromTaskConfiguredTest() =
+    let test = async {
+      let r = Random()
+      let data = Seq.init 100000 (fun i -> 0uy) |> Seq.toArray
+      do r.NextBytes data
+      use ms = new MemoryStream()
+      let computation = async {
+          do! ms.WriteAsync(data, 0, data.Length).ConfigureAwait(false) |> Async.AsAsync
+          Assert.AreEqual(data, ms.ToArray())
+      }
+      do! computation
+    }
+    test.AsTask()
+
+      
+  [<Test>]
+  let OperatorAsAsyncFromTaskTConfiguredTest() =
+    let test = async {
+      let r = Random()
+      let data = Seq.init 100000 (fun i -> 0uy) |> Seq.toArray
+      do r.NextBytes data
+      let computation = async {
+        use ms = new MemoryStream()
+        do ms.Write(data, 0, data.Length)
+        do ms.Position <- 0L
+        let! length = ms.ReadAsync(data, 0, data.Length).ConfigureAwait(false) |> Async.AsAsync
+        Assert.AreEqual(data.Length, length)
+        
+        return ms.ToArray()
+      }
+      let! results = computation
+      Assert.AreEqual(data, results)
+    }
+    test.AsTask()
+
+  [<Test>]
+  let OperatorAsAsyncFromValueTaskConfiguredTest() =
+    let test = async {
+      let r = Random()
+      let data = Seq.init 100000 (fun i -> 0uy) |> Seq.toArray
+      do r.NextBytes data
+      use ms = new MemoryStream()
+      let computation = async {
+          do! (new ValueTask(ms.WriteAsync(data, 0, data.Length))).ConfigureAwait(false) |> Async.AsAsync
+          Assert.AreEqual(data, ms.ToArray())
+      }
+      do! computation
+    }
+    test.AsTask()
+
+    
+  [<Test>]
+  let OperatorAsAsyncFromValueTaskTConfiguredTest() =
+    let test = async {
+      let r = Random()
+      let data = Seq.init 100000 (fun i -> 0uy) |> Seq.toArray
+      do r.NextBytes data
+      let computation = async {
+        use ms = new MemoryStream()
+        do ms.Write(data, 0, data.Length)
+        do ms.Position <- 0L
+        let! length = (new ValueTask<int>(ms.ReadAsync(data, 0, data.Length))).ConfigureAwait(false) |> Async.AsAsync
+        Assert.AreEqual(data.Length, length)
+      
+        return ms.ToArray()
+      }
+      let! results = computation
+      Assert.AreEqual(data, results)
+    }
+    test.AsTask()
+
+  ////////////////////////////////////////////////////////////////////////
   // Configured async monad.
   
   [<Test>]
