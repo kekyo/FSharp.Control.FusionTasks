@@ -1,13 +1,18 @@
 # F# FusionTasks
+
 ![FusionTasks](https://raw.githubusercontent.com/kekyo/FSharp.Control.FusionTasks/master/Images/FSharp.Control.FusionTasks.128.png)
 
 ## Status
+
 | | main | devel |
 |:---|:--:|:--:|
 | NuGet Package (F# 5.0/4.5) | [![NuGet FusionTasks](https://img.shields.io/nuget/v/FSharp.Control.FusionTasks.svg?style=flat)](https://www.nuget.org/packages/FSharp.Control.FusionTasks) | |
 | Continuous integration | [![RelaxVersioner CI build (main)](https://github.com/kekyo/FSharp.Control.FusionTasks/workflows/.NET/badge.svg?branch=main)](https://github.com/kekyo/FSharp.Control.FusionTasks/actions) | [![RelaxVersioner CI build (main)](https://github.com/kekyo/FSharp.Control.FusionTasks/workflows/.NET/badge.svg?branch=devel)](https://github.com/kekyo/FSharp.Control.FusionTasks/actions) |
 
+-----
+
 ## What is this?
+
 * F# Async workflow <--> .NET Task/ValueTask easy seamless interoperability library.
 * Sample code (F# side):
 
@@ -43,6 +48,8 @@ public async Task AsyncTest(FSharpAsync<int> asyncIntComp)
 }
 ```
 
+-----
+
 ## Features
 * Easy interoperable .NET Task/ValueTask <--> F#'s Async.
 * F# async workflow block now supports directly .NET Task/ValueTask handle with let!, do! and use!.
@@ -52,15 +59,34 @@ public async Task AsyncTest(FSharpAsync<int> asyncIntComp)
 
 ## Benefits
 * Easy interoperability, combination and relation standard .NET OSS packages using Task/ValueTask and F#'s Async.
-* F# 5.0/4.5 with .NET 5, .NET Core 3.0/2.0 (or higher), .NET Standard 1.6/2.0 and .NET Framework 4.5/4.6.1/4.8.
+* F# 6.0/4.5 with .NET 6.0/5.0, .NET Core 3.0/2.0 (or higher), .NET Standard 1.6/2.0 and .NET Framework 4.5/4.6.1/4.8.
 * Ready to LINQPad 5.
 
+-----
+
 ## Environments
-* F# 5.0/4.5
-* .NET 5
+
+* F# 6.0/4.5
+* .NET 6.0
+* .NET 5.0
 * .NET Core 3.0/2.0 or higher
 * .NET Standard 1.6/2.0/2.1
 * .NET Framework 4.5/4.6.1/4.8
+
+Combination chart:
+
+| .NET BCL | F# | Details |
+|:----|:----|:----|
+| .NET 6.0 | F# 6.0 | |
+| .NET 5.0 | F# 6.0 | |
+| .NET Core 3.1, 3.0 | F# 6.0 | (3.0 is deprecated) |
+| .NET Core 2.1, 2.0 | F# 6.0 | (2.0 is deprecated) |
+| .NET Standard 2.1, 2.0 | F# 6.0 | |
+| .NET Standard 1.6 | F# 4.5 | |
+| .NET Framework 4.8, 4.6.1 | F# 6.0 | |
+| .NET Framework 4.5 | F# 4.5 | |
+
+-----
 
 ## How to use
 * Search NuGet package and install "FSharp.Control.FusionTasks".
@@ -211,6 +237,8 @@ let asyncInner (arg0:Async<_>) = async {
 ### In C# side:
 * Really need sample codes? huh? :)
 
+-----
+
 ### Easy LINQPad 5 driven:
 * Before setup NuGet package (FSharp.Control.FusionTasks) the LINQPad NuGet Manager.
 
@@ -233,6 +261,8 @@ asyncSequenceData.AsTask().Dump()
 ```
 
 ![LINQPad 5 driven](https://raw.githubusercontent.com/kekyo/FSharp.Control.FusionTasks/master/Images/linqpad5.png)
+
+-----
 
 ## "task-like" and ValueTask appendix
 
@@ -260,11 +290,15 @@ asyncSequenceData.AsTask().Dump()
 ## TODO
  Improvements more easier/effective interfaces.
 
+-----
+
 ## License
 * Copyright (c) 2016-2021 Kouji Matsui (@kozy_kekyo)
 * Under Apache v2 http://www.apache.org/licenses/LICENSE-2.0
 
 ## History
+* 2.5.0:
+  * Supported .NET 6.0 and F# 6.0 environment.
 * 2.4.0:
   * Supported varies for operator `Async.AsAsync`.
   * Completed supporting configured capturing context method `ConfigureAwait(bool)` on all Task based instances.
