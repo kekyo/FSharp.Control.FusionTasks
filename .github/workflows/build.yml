@@ -65,6 +65,6 @@ jobs:
       
     # ----------------------------------------------------------
 
-    - name: Deploy NuGet package (develop/ref1)
+    - name: Deploy NuGet package (devel/ref1)
       if: startsWith( github.ref, 'refs/tags/' )
       run: dotnet nuget push artifacts/FSharp.Control.FusionTasks.*.nupkg --source ref1
