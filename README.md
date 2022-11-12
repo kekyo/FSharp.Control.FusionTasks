@@ -51,6 +51,7 @@ public async Task AsyncTest(FSharpAsync<int> asyncIntComp)
 -----
 
 ## Features
+
 * Easy interoperable .NET Task/ValueTask <--> F#'s Async.
 * F# async workflow block now supports directly .NET Task/ValueTask handle with let!, do! and use!.
 * .NET (C# async-await) now supports directly F#'s Async.
@@ -58,6 +59,7 @@ public async Task AsyncTest(FSharpAsync<int> asyncIntComp)
 * .NET now supports standard asynchronous sequence called `IAsyncEnumerable<T>`, FusionTasks supports it with `for` expression.
 
 ## Benefits
+
 * Easy interoperability, combination and relation standard .NET OSS packages using Task/ValueTask and F#'s Async.
 * F# 6.0/4.5 with .NET 6.0/5.0, .NET Core 3.0/2.0 (or higher), .NET Standard 1.6/2.0 and .NET Framework 4.5/4.6.1/4.8.
 * Ready to LINQPad 5.
@@ -89,6 +91,7 @@ Combination chart:
 -----
 
 ## How to use
+
 * Search NuGet package and install "FSharp.Control.FusionTasks".
 * F# use, autoopen'd namespace "FSharp.Control". "System.Threading.Tasks" is optional.
 * C# use, using namespace "System.Threading.Tasks". "Microsoft.FSharp.Control" is optional.
@@ -235,11 +238,13 @@ let asyncInner (arg0:Async<_>) = async {
 ```
 
 ### In C# side:
+
 * Really need sample codes? huh? :)
 
 -----
 
 ### Easy LINQPad 5 driven:
+
 * Before setup NuGet package (FSharp.Control.FusionTasks) the LINQPad NuGet Manager.
 
 ``` fsharp
@@ -282,21 +287,29 @@ asyncSequenceData.AsTask().Dump()
   * So FusionTasks support only "ValueTask&lt;T&gt;" type and cannot support any other "task-like" types.
 
 ## Additional resources
+
 * Source codes available only "FSharp.Control.FusionTasks" folder.
 * The slides: "How to meets Async and Task" in Seattle F# Users group "MVP Summit Special: A Night of Lightning Talks" 2016.11.09 http://www.slideshare.net/kekyo/asyncs-vs-tasks
 
 <iframe src="https://www.slideshare.net/slideshow/embed_code/68424602" width="800" height="500" frameborder="0" marginwidth="0" marginheight="0" scrolling="no"></iframe>
 
 ## TODO
+
  Improvements more easier/effective interfaces.
 
 -----
 
 ## License
-* Copyright (c) 2016-2021 Kouji Matsui (@kozy_kekyo)
+
+* Copyright (c) 2016-2022 Kouji Matsui (@kozy_kekyo)
 * Under Apache v2 http://www.apache.org/licenses/LICENSE-2.0
 
 ## History
+
+* 2.6.0:
+  * Final version. Thank you using FusionTasks!
+  * Added supporting .NET 7.0 and .NET Core 2.2 environments.
+  * You are ready to use both FusionTasks and F# 7.0! See [issue #14](https://github.com/kekyo/FSharp.Control.FusionTasks/issues/14).
 * 2.5.0:
   * Supported .NET 6.0 and F# 6.0 environment.
 * 2.4.0:
