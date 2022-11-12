@@ -1,43 +1,70 @@
 name: .NET
 
-on:
-  push:
-    branches:
-    - main
-    - devel
-  pull_request:
-    branches:
-    - main
-    - devel
-  workflow_dispatch:
-    branches:
+on: [push]
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
     - uses: actions/checkout@v2
       with:
         fetch-depth: 0
-    - name: Setup .NET Core 2.1
+    #   lfs: true
+    # https://stackoverflow.com/questions/61463578/github-actions-actions-checkoutv2-lfs-true-flag-not-converting-pointers-to-act
+    #- name: Checkout LFS objects
+    #  run: git lfs checkout
+    
+    - name: Extract branch name
+      id: extract_branch_name
+    #  if: startsWith( github.ref, 'refs/tags/' )
+      run: |
+        export branch_name=`git name-rev --name-only --exclude=tags/* HEAD`
+        echo "Detected current branch: $branch_name"
+        echo "::set-output name=branch_name::$branch_name"
+
+    # ----------------------------------------------------------
+
+    - name: Setup .NET Core 2.2
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 2.1.811
+        dotnet-version: 2.2.*
     - name: Setup .NET Core 3.1
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 3.1.404
+        dotnet-version: 3.1.*
     - name: Setup .NET 5
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 5.0.100
+        dotnet-version: 5.0.*
     - name: Setup .NET 6
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 6.0.100
-    - name: Install dependencies
-      run: dotnet restore
+        dotnet-version: 6.0.*
+
+    # ----------------------------------------------------------
+    
+    - name: Setup NuGet package reference
+      run: dotnet nuget add source ${{secrets.GH_LOCAL_NUGET_URL}} -n ref1 -u ${{secrets.GH_LOCAL_NUGET_USER}} -p ${{secrets.GH_LOCAL_NUGET_PASSWORD}} --store-password-in-clear-text --configfile NuGet.Config
+
+    # ----------------------------------------------------------
+
     - name: Build
-      run: dotnet build --configuration Release --no-restore
+      run: dotnet build -p:Configuration=Release -p:BuildIdentifier=${GITHUB_RUN_NUMBER}
+
+    # ----------------------------------------------------------
+
     - name: Test
-      run: dotnet test --no-restore --verbosity normal
+      run: dotnet test --verbosity normal -p:Configuration=Release -p:BuildIdentifier=${GITHUB_RUN_NUMBER}
+      timeout-minutes: 2
+      
+    # ----------------------------------------------------------
+
+    - name: Build packages
+      run: dotnet pack -p:Configuration=Release -p:BuildIdentifier=${GITHUB_RUN_NUMBER} -o artifacts
+      
+    # ----------------------------------------------------------
+
+    - name: Deploy NuGet package (develop/ref1)
+      if: startsWith( github.ref, 'refs/tags/' )
+      run: dotnet nuget push artifacts/FSharp.Control.FusionTasks.*.nupkg --source ref1
