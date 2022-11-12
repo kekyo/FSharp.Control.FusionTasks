@@ -2,15 +2,7 @@
 
   <PropertyGroup>
     <TargetFrameworks>net48;netcoreapp2.2;netcoreapp3.1;net5.0-windows;net6.0</TargetFrameworks>
-    <DebugType>portable</DebugType>
-    <DebugSymbols>true</DebugSymbols>
-    <CheckEolTargetFramework>false</CheckEolTargetFramework>
-    <Deterministic>true</Deterministic>
-    <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <EmbedUntrackedSources>true</EmbedUntrackedSources>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
-    <NoWarn>988</NoWarn>
+    <NoWarn>988;NU1803</NoWarn>
   </PropertyGroup>
 
   <ItemGroup Condition="('$(TargetFramework)' == 'net45') or ('$(TargetFramework)' == 'netstandard1.6')">

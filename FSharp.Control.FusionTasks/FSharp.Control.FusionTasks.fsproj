@@ -2,32 +2,7 @@
 
   <PropertyGroup>
     <TargetFrameworks>net45;net461;net48;netstandard1.6;netstandard2.0;netstandard2.1;netcoreapp2.0;netcoreapp2.1;netcoreapp2.2;netcoreapp3.0;netcoreapp3.1;net5.0;net6.0</TargetFrameworks>
-    <DebugType>portable</DebugType>
-    <DebugSymbols>true</DebugSymbols>
-    <CheckEolTargetFramework>false</CheckEolTargetFramework>
-    <Deterministic>true</Deterministic>
-    <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <EmbedUntrackedSources>true</EmbedUntrackedSources>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://github.com/kekyo/FSharp.Control.FusionTasks</RepositoryUrl>
-  </PropertyGroup>
-
-  <PropertyGroup>
-    <Title>FSharp.Control.FusionTasks</Title>
-    <Description>F# Async workflow &lt;--&gt; .NET Task easy seamless interoperability library.</Description>
-    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-    <PackageIcon>FSharp.Control.FusionTasks.100.png</PackageIcon>
-    <PackageProjectUrl>https://github.com/kekyo/FSharp.Control.FusionTasks</PackageProjectUrl>
-    <Company>Kouji Matsui (@kozy_kekyo, @kekyo2)</Company>
-    <Authors>Kouji Matsui (@kozy_kekyo, @kekyo2)</Authors>
-    <Product>FusionTasks</Product>
-    <Trademark>FusionTasks</Trademark>
-    <Copyright>Copyright (c) 2016-2021 Kouji Matsui (@kozy_kekyo, @kekyo2)</Copyright>
-    <PackageTags>F#;FSharp;Async;Task;C#;CSharp;await;interop;seamless;computation;Builder;extension</PackageTags>
-    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
-    <AllowedOutputExtensionsInPackageBuildOutputFolder>.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
-    <GenerateLibraryLayout>true</GenerateLibraryLayout>
+    <IsPackable>true</IsPackable>
   </PropertyGroup>
 
   <ItemGroup Condition="('$(TargetFramework)' == 'net45') or ('$(TargetFramework)' == 'netstandard1.6')">
@@ -42,7 +17,6 @@
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.2" PrivateAssets="All" />
     <PackageReference Update="System.ValueTuple" Version="4.5.0" />
     <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.4" />
-    <PackageReference Include="RelaxVersioner" Version="2.4.0" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup Condition="('$(TargetFramework)' != 'net45') and ('$(TargetFramework)' != 'netstandard1.6') and ('$(TargetFramework)' != 'netcoreapp2.0')">

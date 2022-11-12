@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31005.135
+# Visual Studio Version 17
+VisualStudioVersion = 17.3.32901.215
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{BEB599F7-8021-4E01-9200-B9ABF1D9D623}"
 	ProjectSection(SolutionItems) = preProject
@@ -9,6 +9,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		build-nupkg.bat = build-nupkg.bat
 		build-nupkg.sh = build-nupkg.sh
 		.github\workflows\build.yml = .github\workflows\build.yml
+		Directory.Build.props = Directory.Build.props
 		FSharp.Control.FusionTasks.sln.licenseheader = FSharp.Control.FusionTasks.sln.licenseheader
 		LICENSE.txt = LICENSE.txt
 		NuGet.Config = NuGet.Config
