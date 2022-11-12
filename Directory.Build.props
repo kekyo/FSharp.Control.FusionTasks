@@ -32,7 +32,6 @@
     <PackageTags>F#;FSharp;Async;Task;C#;CSharp;await;interop;seamless;computation;Builder;extension</PackageTags>
     <AllowedOutputExtensionsInPackageBuildOutputFolder>.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
     <GenerateLibraryLayout>true</GenerateLibraryLayout>
-    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
     <NoWarn>$(NoWarn);NU1605;NU1701;NU1803</NoWarn>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
