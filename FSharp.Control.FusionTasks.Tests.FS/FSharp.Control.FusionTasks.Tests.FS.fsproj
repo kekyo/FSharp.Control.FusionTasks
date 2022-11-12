@@ -1,16 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net48;netcoreapp2.1;netcoreapp3.1;net5.0-windows;net6.0</TargetFrameworks>
-    <DebugType>portable</DebugType>
-    <DebugSymbols>true</DebugSymbols>
-    <CheckEolTargetFramework>false</CheckEolTargetFramework>
-    <Deterministic>true</Deterministic>
-    <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <EmbedUntrackedSources>true</EmbedUntrackedSources>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
-    <NoWarn>988</NoWarn>
+    <TargetFrameworks>net48;netcoreapp2.2;netcoreapp3.1;net5.0-windows;net6.0</TargetFrameworks>
+    <NoWarn>988;NU1803</NoWarn>
   </PropertyGroup>
 
   <ItemGroup Condition="('$(TargetFramework)' == 'net45') or ('$(TargetFramework)' == 'netstandard1.6')">
@@ -18,16 +10,15 @@
   </ItemGroup>
 
   <ItemGroup Condition="('$(TargetFramework)' != 'net45') and ('$(TargetFramework)' != 'netstandard1.6')">
-    <PackageReference Update="FSharp.Core" Version="6.0.0" />
+    <PackageReference Update="FSharp.Core" Version="7.0.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.2" PrivateAssets="All" />
-    <PackageReference Update="System.ValueTuple" Version="4.5.0" />
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="All" />
     <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.4" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.10.0" />
-    <PackageReference Include="NUnit" Version="3.13.2" />
-    <PackageReference Include="NUnit3TestAdapter" Version="3.17.0" />
+    <PackageReference Include="NUnit" Version="3.13.3" />
+    <PackageReference Include="NUnit3TestAdapter" Version="4.3.0" />
   </ItemGroup>
 
   <ItemGroup>
